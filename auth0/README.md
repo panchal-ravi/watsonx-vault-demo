@@ -1,0 +1,145 @@
+# Auth0 Client Credentials Terraform Module
+
+This Terraform module creates an Auth0 application configured for the OAuth2 client credentials flow, specifically designed for machine-to-machine authentication with services like Hashicorp Vault.
+
+## Features
+
+- Creates an Auth0 non-interactive (machine-to-machine) application
+- Configures client credentials authentication flow
+- Supports custom audiences and scopes
+- Includes optional resource server configuration
+- Provides formatted curl command for testing
+- Comprehensive testing with native Terraform tests
+
+## Usage
+
+### Basic Usage
+
+```hcl
+module "auth0_client_credentials" {
+  source = "path/to/this/module"
+
+  name         = "My M2M Application"
+  description  = "Machine-to-machine application for API access"
+  auth0_domain = "your-domain.auth0.com"
+}
+```
+
+### With Custom Audience and Scopes
+
+```hcl
+module "auth0_client_credentials" {
+  source = "path/to/this/module"
+
+  name         = "Vault JWT Auth Client"
+  description  = "Client credentials for Vault JWT authentication"
+  auth0_domain = "your-domain.auth0.com"
+  audience     = "https://vault.example.com/v1/auth/jwt"
+  scopes       = ["read:metrics", "read:vault"]
+}
+```
+
+### Testing the OAuth2 Flow
+
+After deployment, you can test the client credentials flow using the provided curl command:
+
+```bash
+# Get the curl command from Terraform output
+terraform output -raw curl_command | bash
+```
+
+## Environment Variables
+
+For the Auth0 provider configuration, set these environment variables:
+
+```bash
+export AUTH0_DOMAIN=your-domain.auth0.com
+export AUTH0_CLIENT_ID=your-management-client-id
+export AUTH0_CLIENT_SECRET=your-management-client-secret
+```
+
+## Examples
+
+See the `examples/` directory for complete usage examples:
+
+- `examples/basic/` - Basic client credentials setup
+- `examples/vault-integration/` - Vault JWT authentication integration
+
+## Testing
+
+This module includes comprehensive tests using native Terraform testing:
+
+```bash
+terraform test
+```
+
+## Vault Integration
+
+This module is designed to work seamlessly with Hashicorp Vault's JWT authentication method. After creating the Auth0 client credentials, you can configure Vault as follows:
+
+```bash
+# Configure Vault JWT authentication
+vault auth enable jwt
+vault write auth/jwt/config \
+  oidc_discovery_url="https://your-domain.auth0.com/"
+
+# Create a role for the client
+vault write auth/jwt/role/your-role \
+  policies="your-policy" \
+  user_claim="sub" \
+  role_type="jwt" \
+  bound_audiences="your-audience" \
+  bound_subject="your-client-subject"
+```
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_auth0"></a> [auth0](#requirement\_auth0) | ~> 1.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_auth0"></a> [auth0](#provider\_auth0) | 1.24.0 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [auth0_client.client_credentials](https://registry.terraform.io/providers/auth0/auth0/latest/docs/resources/client) | resource |
+| [auth0_client_credentials.credentials](https://registry.terraform.io/providers/auth0/auth0/latest/docs/resources/client_credentials) | resource |
+| [auth0_client_grant.grant](https://registry.terraform.io/providers/auth0/auth0/latest/docs/resources/client_grant) | resource |
+| [auth0_resource_server.api](https://registry.terraform.io/providers/auth0/auth0/latest/docs/resources/resource_server) | resource |
+| [auth0_resource_server_scope.scopes](https://registry.terraform.io/providers/auth0/auth0/latest/docs/resources/resource_server_scope) | resource |
+| [auth0_tenant.current](https://registry.terraform.io/providers/auth0/auth0/latest/docs/data-sources/tenant) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_audience"></a> [audience](#input\_audience) | Target audience for the client credentials tokens | `string` | `""` | no |
+| <a name="input_auth0_domain"></a> [auth0\_domain](#input\_auth0\_domain) | Auth0 domain (e.g., 'your-domain.auth0.com') | `string` | n/a | yes |
+| <a name="input_description"></a> [description](#input\_description) | Description of the Auth0 application | `string` | `""` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name of the Auth0 application | `string` | n/a | yes |
+| <a name="input_scopes"></a> [scopes](#input\_scopes) | List of scopes to request for the client credentials | `list(string)` | `[]` | no |
+| <a name="input_token_endpoint_auth_method"></a> [token\_endpoint\_auth\_method](#input\_token\_endpoint\_auth\_method) | Authentication method for the token endpoint | `string` | `"client_secret_post"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_audience"></a> [audience](#output\_audience) | The configured audience for the client credentials |
+| <a name="output_client_id"></a> [client\_id](#output\_client\_id) | The Auth0 client ID |
+| <a name="output_client_name"></a> [client\_name](#output\_client\_name) | The name of the Auth0 client |
+| <a name="output_client_secret"></a> [client\_secret](#output\_client\_secret) | The Auth0 client secret |
+| <a name="output_curl_command"></a> [curl\_command](#output\_curl\_command) | Example curl command to test the client credentials flow |
+| <a name="output_domain"></a> [domain](#output\_domain) | The Auth0 domain |
+| <a name="output_token_endpoint"></a> [token\_endpoint](#output\_token\_endpoint) | The OAuth2 token endpoint URL |
+<!-- END_TF_DOCS -->
