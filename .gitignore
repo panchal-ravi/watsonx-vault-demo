@@ -1,0 +1,6 @@
+steps.md
+generated/*
+terraform.tfstate*
+.terraform
+.terraform.lock.hcl
+.envrc
