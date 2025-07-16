@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source:*)",
+      "Bash(pip index versions:*)",
+      "Bash(pip search:*)",
+      "Bash(pip install:*)"
+    ],
+    "deny": []
+  }
+}
