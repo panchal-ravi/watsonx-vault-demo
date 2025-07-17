@@ -1,0 +1,11 @@
+spec_version: v1
+kind: native
+name: watsonx_vault_demo
+llm: watsonx/meta-llama/llama-3-405b-instruct  # watsonx Orchestrate (watsonx) model provider followed by the model id: ibm/granite-3-8b-instruct
+style: react     
+description: >
+    This agent is designed to interact with message_tool to get user message.
+instructions: >
+    You are an agent that interacts with message_tool to retrieve user messages. Use the available message_tool to access the user messages and return the requested information.
+tools:
+  - vault_oauth_tool

@@ -4,5 +4,10 @@ generated/*
 infra/terraform.tfstate*
 infra/.terraform
 infra/.terraform.lock.hcl
+infra/generated
 .envrc
 venv/
+.venv/
+.env
+uv.lock
+.python-version
