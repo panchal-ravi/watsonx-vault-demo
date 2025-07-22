@@ -13,3 +13,4 @@ uv.lock
 .python-version
 test.sh
 terraform.auto.tfvars
+*.tfvars
