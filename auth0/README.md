@@ -48,14 +48,71 @@ After deployment, you can test the client credentials flow using the provided cu
 terraform output -raw curl_command | bash
 ```
 
-## Environment Variables
+## Prerequisites
 
-For the Auth0 provider configuration, set these environment variables:
+Before using this module, you need to set up Auth0 and configure the Terraform provider authentication.
 
-```bash
-export AUTH0_DOMAIN=your-domain.auth0.com
-export AUTH0_CLIENT_ID=your-management-client-id
-export AUTH0_CLIENT_SECRET=your-management-client-secret
+### Setup Using Auth0 CLI (Recommended)
+
+1. **Install Auth0 CLI**:
+   ```bash
+   # Install via npm
+   npm install -g @auth0/auth0-cli
+   
+   # Or via Homebrew (macOS)
+   brew install auth0/auth0-cli/auth0
+   ```
+
+2. **Login to Auth0**:
+   ```bash
+   auth0 login --scopes create:client_grants
+   ```
+
+3. **Create Machine-to-Machine Application**:
+   ```bash
+   # Create a machine-to-machine application on Auth0
+   export AUTH0_M2M_APP=$(auth0 apps create \
+     --name "Auth0 Terraform Provider" \
+     --description "Auth0 Terraform Provider M2M" \
+     --type m2m \
+     --reveal-secrets \
+     --json | jq -r '. | {client_id: .client_id, client_secret: .client_secret}')
+
+   # Extract the client ID and client secret from the output
+   export AUTH0_CLIENT_ID=$(echo $AUTH0_M2M_APP | jq -r '.client_id')
+   export AUTH0_CLIENT_SECRET=$(echo $AUTH0_M2M_APP | jq -r '.client_secret')
+   ```
+
+4. **Set Auth0 Domain**:
+   ```bash
+   export AUTH0_DOMAIN=your-tenant.auth0.com
+   ```
+
+### Required Dependencies
+
+- **jq**: JSON processor for parsing CLI output
+  ```bash
+  # Install jq
+  brew install jq  # macOS
+  sudo apt-get install jq  # Ubuntu/Debian
+  ```
+
+### Terraform Provider Configuration
+
+```hcl
+terraform {
+  required_providers {
+    auth0 = {
+      source  = "auth0/auth0"
+      version = "~> 1.0"
+    }
+  }
+}
+
+provider "auth0" {
+  domain        = var.auth0_domain
+  # client_id and client_secret will be read from environment variables
+}
 ```
 
 ## Examples

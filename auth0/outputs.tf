@@ -29,6 +29,21 @@ output "client_name" {
   value       = auth0_client.client_credentials.name
 }
 
+output "authorization_endpoint" {
+  description = "The OAuth2 authorization endpoint URL (for Authorization Code flow)"
+  value       = "https://${var.auth0_domain}/authorize"
+}
+
+output "userinfo_endpoint" {
+  description = "The OAuth2 userinfo endpoint URL"
+  value       = "https://${var.auth0_domain}/userinfo"
+}
+
+output "issuer" {
+  description = "The OAuth2 issuer URL"
+  value       = "https://${var.auth0_domain}/"
+}
+
 output "curl_command" {
   description = "Example curl command to test the client credentials flow"
   value = format(
@@ -39,4 +54,20 @@ output "curl_command" {
     var.audience != "" ? var.audience : "https://${var.auth0_domain}/api/v2/"
   )
   sensitive = true
+}
+
+output "created_users" {
+  description = "Map of created test users"
+  value = var.create_users ? {
+    for email, user in auth0_user.users : email => {
+      user_id = user.user_id
+      email   = user.email
+      name    = user.name
+    }
+  } : {}
+}
+
+output "user_count" {
+  description = "Number of users created"
+  value       = var.create_users ? length(auth0_user.users) : 0
 }
