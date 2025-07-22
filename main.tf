@@ -12,7 +12,7 @@ provider "auth0" {
     # export AUTH0_CLIENT_ID
     # export AUTH0_CLIENT_SECRET
     # export AUTH0_DOMAIN
-    var.auth0_domain
+    domain = var.auth0_domain
 }
 
 # Create Auth0 application with test users
