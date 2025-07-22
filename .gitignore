@@ -14,3 +14,4 @@ uv.lock
 test.sh
 ./terraform.auto.tfvars
 ./*.tfvars
+terraform.auto.tfvars
