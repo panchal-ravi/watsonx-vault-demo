@@ -11,3 +11,4 @@ venv/
 .env
 uv.lock
 .python-version
+test.sh
