@@ -1,0 +1,1 @@
+auth0_domain = "dev-blg1q8grwbtuwvq8.us.auth0.com"
