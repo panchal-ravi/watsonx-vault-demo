@@ -34,23 +34,23 @@ module "auth0_with_users" {
   # Define test users using for_each friendly map structure
   users = {
     "test.user@example.com" = {
-      password    = "TempPassword123!"
-      name        = "Test User"
+      password    = "${var.test_password}"
+      name        = "watsonxuser1"
       given_name  = "Test"
       family_name = "User"
     }
     
     "admin@example.com" = {
-      password    = "AdminPassword123!"
-      name        = "Admin User"
+      password    = "${var.test_password}"
+      name        = "watsonxuser2"
       given_name  = "Admin"
       family_name = "User"
       nickname    = "admin"
     }
     
     "developer@example.com" = {
-      password    = "DevPassword123!"
-      name        = "Developer User"
+      password    = "${var.test_password}"
+      name        = "watsonxuser3"
       given_name  = "Developer"
       family_name = "User"
     }

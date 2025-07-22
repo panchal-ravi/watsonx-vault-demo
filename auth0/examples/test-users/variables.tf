@@ -13,3 +13,9 @@ variable "auth0_client_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "test_password" {
+  description = "The password for test users"
+  type        = string
+  default     = "TempPassword123!"
+}
