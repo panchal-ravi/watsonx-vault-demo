@@ -82,8 +82,20 @@ Before using this module, you need to set up Auth0 and configure the Terraform p
    export AUTH0_CLIENT_ID=$(echo $AUTH0_M2M_APP | jq -r '.client_id')
    export AUTH0_CLIENT_SECRET=$(echo $AUTH0_M2M_APP | jq -r '.client_secret')
    ```
+4. Add client grant
+```
+# Get the ID and IDENTIFIER fields of the Auth0 Management API
+export AUTH0_MANAGEMENT_API_ID=$(auth0 apis list --json | jq -r 'map(select(.name == "Auth0 Management API"))[0].id')
+export AUTH0_MANAGEMENT_API_IDENTIFIER=$(auth0 apis list --json | jq -r 'map(select(.name == "Auth0 Management API"))[0].identifier')
+# Get the SCOPES to be authorized
+export AUTH0_MANAGEMENT_API_SCOPES=$(auth0 apis scopes list $AUTH0_MANAGEMENT_API_ID --json | jq -r '.[].value' | jq -ncR '[inputs]')
 
-4. **Set Auth0 Domain**:
+# Authorize the Auth0 Terraform Provider application to use the Auth0 Management API
+auth0 api post "client-grants" --data='{"client_id": "'$AUTH0_CLIENT_ID'", "audience": "'$AUTH0_MANAGEMENT_API_IDENTIFIER'", "scope":'$AUTH0_MANAGEMENT_API_SCOPES'}'
+```
+
+
+5. **Set Auth0 Domain**:
    ```bash
    export AUTH0_DOMAIN=your-tenant.auth0.com
    ```
