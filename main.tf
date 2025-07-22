@@ -23,7 +23,7 @@ module "auth0_with_users" {
   description = "Auth0 application with test users for development"
   
   # Configure for Authorization Code flow
-  app_type    = "regular_web_application"
+  app_type    = "regular_web"
   grant_types = ["authorization_code", "refresh_token"]
   
   callback_urls = ["http://localhost:3000/callback"]

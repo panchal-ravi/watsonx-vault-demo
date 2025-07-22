@@ -48,9 +48,10 @@ variable "app_type" {
   validation {
     condition = contains([
       "non_interactive",
-      "regular_web_application",
+      "regular_web",
       "spa",
-      "native"
+      "native",
+      "sso_integration"
     ], var.app_type)
     error_message = "App type must be one of: non_interactive, regular_web_application, spa, native."
   }
