@@ -1,0 +1,21 @@
+kind: set-identity-provider
+app_id: vaultapp
+environments:
+  draft:
+    url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
+    client-id: <wxo-entra-client-id>
+    client-secret: <wxo-entra-client-secret>
+    scope: api://{vault-client-id}/Vault.Access
+    grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+  live:
+    url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
+    client-id: <wxo-entra-client-id>
+    client-secret: <wxo-entra-client-secret>
+    scope: api://{vault-client-id}/Vault.Access
+    grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+
+
+
+
+# https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/authorize
+# https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
