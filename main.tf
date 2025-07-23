@@ -19,8 +19,8 @@ provider "auth0" {
 module "auth0_with_users" {
   source = "./auth0"
 
-  name        = "Test Application with Users"
-  description = "Auth0 application with test users for development"
+  name        = "watsonx-on-behalf-authorization-code"
+  description = "Auth0 application with test users for watsonx on behalf oauth2 authorization code flow"
   
   # Configure for Authorization Code flow
   app_type    = "regular_web"
@@ -42,7 +42,7 @@ module "auth0_with_users" {
       nickname    = "simon"
     }
     
-    "admin@example.com" = {
+    "simon.lynch1@ibm.com" = {
       password    = "${var.test_password}"
       name        = "Admin User"
       given_name  = "Admin"
