@@ -1,5 +1,5 @@
 resource "vault_policy" "admins" {
-  # namespace = "test"
+  namespace = "admin"
   name   = "vault-admins"
   policy = <<EOT
 #vault-admin.hcl
