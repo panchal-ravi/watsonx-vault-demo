@@ -22,6 +22,11 @@ path "sys/capabilities-self" {
     capabilities = ["update"]
 }
 
+# Allow listing secrets metadata at root level
+path "kv/metadata" {
+    capabilities = ["list"]
+}
+
 # KV-v2 secrets engine access using entity templating for tenant isolation
 # Each entity can only access secrets under their own path
 path "kv/data/{{identity.entity.name}}" {
