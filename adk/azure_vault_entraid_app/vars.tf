@@ -1,12 +1,12 @@
 variable "vault_ui_redirect_address" {
   type        = string
-  default     = "http://localhost:8200"
+  default     = "https://tf-aap-public-vault-76d1afab.7739a0fc.z1.hashicorp.cloud:8200"
   description = "DNS hostname or IP address of Vault's UI."
 }
 
 variable "vault_cli_redirect_address" {
   type        = string
-  default     = "http://localhost:8250"
+  default     = "https://tf-aap-public-vault-76d1afab.7739a0fc.z1.hashicorp.cloud:8250"
   description = "DNS hostname or IP address of Vault's CLI."
 }
 

@@ -1,19 +1,18 @@
 output "object_id" {
   value       = azuread_application.vault.object_id
-  sensitive   = true
   description = "Object ID of Azure AD application."
 }
 
-output "application_id" {
+output "client_id" {
   value       = azuread_application.vault.client_id
-  sensitive   = true
+  sensitive   = false
   description = "Application (Client) ID of Azure AD application."
 }
 
 
 output "client_secret" {
-  value       = azuread_application_password.vault.value
-  sensitive   = true
+  value       = nonsensitive(azuread_application_password.vault.value)
+  sensitive   = false
   description = "Client secret of Azure AD application."
 }
 
