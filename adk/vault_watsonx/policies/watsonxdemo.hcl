@@ -1,37 +1,75 @@
-# Policy for AppRole authentication with SSH key signing capabilities
-# Designed for use in the admin/hashi-redhat namespace
-# Uses templating based on entity name
+# Policy for watsonxdemo AppRole authentication
+# Tightened policy based on example_usage.py requirements
+# Uses templating based on entity name for multi-tenant isolation
 
-# Allow access to SSH secrets engine for signing with the entity's role
-path "ssh/sign/{{identity.entity.name}}" {
-    capabilities = ["read", "update"]
-}
-
-# Allow access to KV-v2 secrets engine for the entity's tenant-specific path
-# This supports unique paths per tenant under the secrets mount
-path "kv/data/{{identity.entity.name}}" {
-    capabilities = ["create", "read", "update", "delete", "patch"]
-}
-
-path "kv/data/{{identity.entity.name}}/*" {
-    capabilities = ["create", "read", "update", "delete", "patch"]
-}
-
-path "kv/metadata/{{identity.entity.name}}/*" {
-    capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-# Allow listing at the tenant level to see available secrets
-path "kv/metadata" {
-    capabilities = ["list"]
-}
-
-# Allow reading own token information
+# Allow reading own token information (used by _log_token_info)
 path "auth/token/lookup-self" {
     capabilities = ["read"]
 }
 
-# Allow renewing own token
+# Allow renewing own token (used by renew_token method)
 path "auth/token/renew-self" {
     capabilities = ["update"]
+}
+
+# Allow listing mounted secret engines (used by _debug_available_mounts)
+path "sys/mounts" {
+    capabilities = ["read"]
+}
+
+# Allow checking capabilities (used by _debug_available_mounts)
+path "sys/capabilities-self" {
+    capabilities = ["update"]
+}
+
+# KV-v2 secrets engine access using entity templating for tenant isolation
+# Each entity can only access secrets under their own path
+path "kv/data/{{identity.entity.name}}" {
+    capabilities = ["create", "read", "update", "delete"]
+}
+
+path "kv/data/{{identity.entity.name}}/*" {
+    capabilities = ["create", "read", "update", "delete"]
+}
+
+path "kv/metadata/{{identity.entity.name}}" {
+    capabilities = ["read", "list", "delete"]
+}
+
+path "kv/metadata/{{identity.entity.name}}/*" {
+    capabilities = ["read", "list", "delete"]
+}
+
+# Alternative KV-v2 paths with secret/ mount (fallback attempts in code)
+path "secret/data/{{identity.entity.name}}" {
+    capabilities = ["create", "read", "update", "delete"]
+}
+
+path "secret/data/{{identity.entity.name}}/*" {
+    capabilities = ["create", "read", "update", "delete"]
+}
+
+path "secret/metadata/{{identity.entity.name}}" {
+    capabilities = ["read", "list", "delete"]
+}
+
+path "secret/metadata/{{identity.entity.name}}/*" {
+    capabilities = ["read", "list", "delete"]
+}
+
+# KV-v1 fallback paths using entity templating (used by read_secret/write_secret attempts)
+path "kv/{{identity.entity.name}}" {
+    capabilities = ["create", "read", "update", "delete"]
+}
+
+path "kv/{{identity.entity.name}}/*" {
+    capabilities = ["create", "read", "update", "delete"]
+}
+
+path "secret/{{identity.entity.name}}" {
+    capabilities = ["create", "read", "update", "delete"]
+}
+
+path "secret/{{identity.entity.name}}/*" {
+    capabilities = ["create", "read", "update", "delete"]
 }

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source:*)",
+      "Bash(./venv/bin/python:*)",
+      "Bash(VAULT_ADDR=https://tf-aap-public-vault-76d1afab.7739a0fc.z1.hashicorp.cloud:8200 VAULT_NAMESPACE=admin/hashi-redhat VAULT_ROLE_ID=0177c413-939c-5698-ab50-cf76e2b5e3f7 VAULT_SECRET_ID=067289de-4c93-c4ea-033f-3ec0224cb427 VAULT_VERIFY_SSL=true ./venv/bin/python example_usage.py)",
+      "Bash(./venv/bin/pip install python-dotenv)",
+      "Bash(find:*)",
+      "Bash(python3:*)",
+      "Bash(pip install:*)",
+      "Bash(ls:*)",
+      "Bash(python:*)",
+      "Bash(venv/bin/python:*)"
+    ],
+    "deny": []
+  }
+}
