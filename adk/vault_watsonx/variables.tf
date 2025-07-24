@@ -4,6 +4,12 @@ variable "tenant" {
   default     = "watsonxdemo"
 }
 
+variable "namespace" {
+  description = "The namespace in which the resources will be created."
+  type        = string
+  default     = "admin/hashi-redhat"  # Default namespace for the resources
+}
+
 variable "vault_cluster_addr" {
   default = ""
 }
@@ -34,4 +40,16 @@ variable "allowed_redirect_uris" {
 variable "external_group_identifier" {
   type        = string
   description = "Unique identifier for the group in your AAD. AAD uses the object ID"
+}
+
+# External Groups
+variable "external_groups" {
+  description = "Map of external groups to create."
+  type        = map(object({
+    group_name     = string
+    type     = string
+    policies = list(string)
+    alias_name    = string
+  }))
+  default     = {}
 }
