@@ -66,7 +66,7 @@ resource "azuread_application" "vault" {
 }
 
 resource "azuread_service_principal" "vault" {
-  application_id = azuread_application.vault.application_id
+  client_id = azuread_application.vault.client_id
   owners = [data.azuread_client_config.current.object_id]
 }
 
@@ -101,5 +101,5 @@ resource "azurerm_role_assignment" "vault_role" {
 
 resource "azuread_application_password" "vault" {
   display_name          = "Vault"
-  application_object_id = azuread_application.vault.object_id
+  application_id = azuread_application.vault.object_id
 }
