@@ -67,7 +67,7 @@ resource "azuread_application" "vault" {
 
 resource "azuread_service_principal" "vault" {
   client_id = azuread_application.vault.client_id
-  owners = [data.azuread_client_config.current.object_id]
+  owners    = [data.azuread_client_config.current.object_id]
 }
 
 resource "azuread_directory_role" "cloud_application_administrator" {
@@ -81,7 +81,7 @@ resource "azurerm_role_definition" "vault_role" {
   description = "This is role for App registrations used for HashiCorp Vault."
 
   permissions {
-    actions     = [
+    actions = [
       "Microsoft.Compute/virtualMachines/read",
       "Microsoft.Compute/virtualMachineScaleSets/*/read"
     ]
@@ -94,12 +94,12 @@ resource "azurerm_role_definition" "vault_role" {
 }
 
 resource "azurerm_role_assignment" "vault_role" {
-  scope                = data.azurerm_subscription.primary.id
+  scope              = data.azurerm_subscription.primary.id
   role_definition_id = azurerm_role_definition.vault_role.role_definition_resource_id
-  principal_id         = azuread_service_principal.vault.object_id
+  principal_id       = azuread_service_principal.vault.object_id
 }
 
 resource "azuread_application_password" "vault" {
-  display_name          = "Vault"
+  display_name   = "Vault"
   application_id = azuread_application.vault.object_id
 }
