@@ -17,6 +17,7 @@ resource "azuread_application" "vault" {
   }
 
   api {
+    requested_access_token_version = 2
     oauth2_permission_scope {
       admin_consent_description  = "Allow the application to access example on behalf of the signed-in user."
       admin_consent_display_name = "Access example"
@@ -101,5 +102,5 @@ resource "azurerm_role_assignment" "vault_role" {
 
 resource "azuread_application_password" "vault" {
   display_name   = "Vault"
-  application_id = azuread_application.vault.object_id
+  application_id = azuread_application.vault.id
 }

@@ -5,7 +5,7 @@ output "object_id" {
 }
 
 output "application_id" {
-  value       = azuread_application.vault.application_id
+  value       = azuread_application.vault.client_id
   sensitive   = true
   description = "Application (Client) ID of Azure AD application."
 }
