@@ -3,7 +3,7 @@ terraform {
     organization = "Hashi-RedHat-APJ-Collab" 
 
     workspaces { 
-      name = "watsonx_approle" 
+      name = "watsonx_demo" 
     } 
   } 
 }
