@@ -1,7 +1,6 @@
 resource "vault_policy" "admins" {
-  namespace = "admin"
-  name   = "vault-admins"
-  policy = <<EOT
+  name      = "vault-admins"
+  policy    = <<EOT
 #vault-admin.hcl
 #Allows very broad access and should not be used in production
 
@@ -28,10 +27,10 @@ EOT
 }
 
 module "root_oidc" {
-  source = "bmcdonald05/oidc-auth-method/vault"
+  source  = "bmcdonald05/oidc-auth-method/vault"
   version = "1.0.4"
 
-  namespace                 = "admin"
+  namespace                 = "admin/hashi-redhat"
   oidc_discovery_url        = var.oidc_discovery_url
   oidc_client_id            = var.oidc_client_id
   oidc_client_secret        = var.oidc_client_secret
