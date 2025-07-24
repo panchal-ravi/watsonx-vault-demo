@@ -40,22 +40,7 @@ path "kv/metadata/{{identity.entity.name}}/*" {
     capabilities = ["read", "list", "delete"]
 }
 
-# Alternative KV-v2 paths with secret/ mount (fallback attempts in code)
-path "secret/data/{{identity.entity.name}}" {
-    capabilities = ["create", "read", "update", "delete"]
-}
 
-path "secret/data/{{identity.entity.name}}/*" {
-    capabilities = ["create", "read", "update", "delete"]
-}
-
-path "secret/metadata/{{identity.entity.name}}" {
-    capabilities = ["read", "list", "delete"]
-}
-
-path "secret/metadata/{{identity.entity.name}}/*" {
-    capabilities = ["read", "list", "delete"]
-}
 
 # KV-v1 fallback paths using entity templating (used by read_secret/write_secret attempts)
 path "kv/{{identity.entity.name}}" {
@@ -66,10 +51,3 @@ path "kv/{{identity.entity.name}}/*" {
     capabilities = ["create", "read", "update", "delete"]
 }
 
-path "secret/{{identity.entity.name}}" {
-    capabilities = ["create", "read", "update", "delete"]
-}
-
-path "secret/{{identity.entity.name}}/*" {
-    capabilities = ["create", "read", "update", "delete"]
-}

@@ -10,7 +10,10 @@
       "Bash(pip install:*)",
       "Bash(ls:*)",
       "Bash(python:*)",
-      "Bash(venv/bin/python:*)"
+      "Bash(venv/bin/python:*)",
+      "Bash(terraform apply:*)",
+      "Bash(pip3 install:*)",
+      "Bash(PYTHONPATH=/opt/homebrew/lib/python3.13/site-packages python example_usage.py)"
     ],
     "deny": []
   }
