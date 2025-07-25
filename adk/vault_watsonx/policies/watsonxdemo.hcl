@@ -27,6 +27,10 @@ path "kv/metadata" {
     capabilities = ["list"]
 }
 
+path "kv/data/watsonxdemo" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 # KV-v2 secrets engine access using entity templating for tenant isolation
 # Each entity can only access secrets under their own path
 path "kv/data/{{identity.entity.name}}" {
@@ -44,7 +48,6 @@ path "kv/metadata/{{identity.entity.name}}" {
 path "kv/metadata/{{identity.entity.name}}/*" {
     capabilities = ["read", "list", "delete"]
 }
-
 
 
 # KV-v1 fallback paths using entity templating (used by read_secret/write_secret attempts)
