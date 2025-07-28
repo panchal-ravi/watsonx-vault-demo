@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../platform-vault-config"
+		},
+		{
+			"path": "../../../platform-hcp-terraform-tenant"
+		},
+		{
+			"path": "../../../platform-aap"
+		},
+		{
+			"path": "../../../terraform-azuread-app-vault"
+		},
+		{
+			"path": "../../../sko_aap_deployment_aws"
+		}
+	],
+	"settings": {}
+}
