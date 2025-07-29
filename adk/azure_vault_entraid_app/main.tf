@@ -30,7 +30,7 @@ resource "azuread_application" "vault" {
       id                         = random_uuid.oauth2_scope_id.result
       type                       = "Admin"
       enabled                    = true
-      value                      = "administer"
+      value                      = "vault.secrets.read"
     }
   }
 
