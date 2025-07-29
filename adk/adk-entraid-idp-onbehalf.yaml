@@ -1,20 +1,13 @@
-kind: set-identity-provider
-app_id: vaultapp
+spec_version: v1
+kind: connection
+app_id: watsonxdemo
 environments:
-  draft:
-    url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
-    client-id: ced4c4a3-fdbf-4796-8999-2d7e8c7afae3
-    client-secret: 
-    scope: api://hashicorp-vault-app-99f8d671/vault.secrets.read
-    grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
   live:
     url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
     client-id: ced4c4a3-fdbf-4796-8999-2d7e8c7afae3
     client-secret: 
     scope: api://hashicorp-vault-app-99f8d671/vault.secrets.read
     grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-
-
 
 
 # https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/authorize

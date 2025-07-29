@@ -1,0 +1,20 @@
+spec_version: v1
+kind: connection
+app_id: watsonxdemo
+environments:
+  live:
+    kind: oauth_auth_on_behalf_of_flow
+    type: member
+    sso: true
+    server_url: https://tf-aap-public-vault-76d1afab.7739a0fc.z1.hashicorp.cloud:8200/v1/auth/jwt/login"
+    idp_config:
+      header:
+        content-type: application/x-www-form-urlencoded
+      body:
+        requested_token_use: on_behalf_of
+        requested_token_type: urn:ietf:params:oauth:token-type:access_token
+    app_config:
+      header:
+        content-type: application/x-www-form-urlencoded
+      body:
+        grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
