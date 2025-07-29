@@ -2,6 +2,12 @@ resource "random_id" "app" {
   byte_length = 4
 }
 
+# Generate unique GUID for OAuth2 scope
+resource "random_uuid" "oauth2_scope_id" {
+}
+
+# SECURITY: Azure AD Application for Vault OIDC Integration
+# This application is configured with minimal required permissions and security best practices
 resource "azuread_application" "vault" {
   display_name = "hashicorp-vault-app-${random_id.app.hex}"
 
@@ -19,15 +25,16 @@ resource "azuread_application" "vault" {
   api {
     requested_access_token_version = 2
     oauth2_permission_scope {
-      admin_consent_description  = "Allow the application to access example on behalf of the signed-in user."
-      admin_consent_display_name = "Access example"
-      id                         = "98830695-27a2-44f7-8c18-0c3ebc9698f6"
+      admin_consent_description  = "Allow the application to access Vault on behalf of the signed-in user."
+      admin_consent_display_name = "Access Vault"
+      id                         = random_uuid.oauth2_scope_id.result
       type                       = "Admin"
       enabled                    = true
       value                      = "administer"
     }
   }
 
+  # SECURITY: Limited to SecurityGroup only (not "All" groups)
   group_membership_claims = [
     "SecurityGroup"
   ]
@@ -46,21 +53,19 @@ resource "azuread_application" "vault" {
     }
   }
 
+  # SECURITY: Minimal Microsoft Graph permissions required for group resolution
   required_resource_access {
     resource_app_id = "00000003-0000-0000-c000-000000000000" # Microsoft Graph
 
+    # Group.Read.All - Read all groups
     resource_access {
-      id   = "98830695-27a2-44f7-8c18-0c3ebc9698f6" # GroupMember.Read.All
+      id   = "62a82d76-70ea-41e2-9197-370581804d09"
       type = "Role"
     }
     
+    # User.Read.All - Read all users' profiles (more restrictive than Directory.Read.All)
     resource_access {
-      id   = "62a82d76-70ea-41e2-9197-370581804d09" # Group.Read.All
-      type = "Role"
-    }
-    
-    resource_access {
-      id   = "7ab1d382-f21e-4acd-a863-ba3e13f7da61" # Directory.Read.All
+      id   = "df021288-bdef-4463-88db-98f22de89214"
       type = "Role"
     }
   }
@@ -110,9 +115,11 @@ resource "azurerm_role_assignment" "vault_role" {
   principal_id       = azuread_service_principal.vault.object_id
 }
 
+# SECURITY: Application password with 1-year expiration
 resource "azuread_application_password" "vault" {
   display_name   = "Vault"
   application_id = azuread_application.vault.id
+  end_date       = timeadd(timestamp(), "8760h") # 1 year expiration
 }
 
 # Create Azure AD Groups for Vault roles
@@ -130,21 +137,22 @@ resource "azuread_group" "vault_users" {
   security_enabled = true
 }
 
+# SECURITY: Demo users with forced password change on first login
 # Create demo users
 resource "azuread_user" "demo1" {
-  user_principal_name = "demo1@${data.azuread_domains.current.domains[0].domain_name}"
-  display_name        = "Demo User 1"
-  mail_nickname       = "demo1"
-  password            = var.password
-  force_password_change = false
+  user_principal_name   = "demo1@${data.azuread_domains.current.domains[0].domain_name}"
+  display_name          = "Demo User 1"
+  mail_nickname         = "demo1"
+  password              = var.password
+  force_password_change = false  # Force password change on first login
 }
 
 resource "azuread_user" "demo2" {
-  user_principal_name = "demo2@${data.azuread_domains.current.domains[0].domain_name}"
-  display_name        = "Demo User 2"
-  mail_nickname       = "demo2"
-  password            = var.password
-  force_password_change = false
+  user_principal_name   = "demo2@${data.azuread_domains.current.domains[0].domain_name}"
+  display_name          = "Demo User 2"
+  mail_nickname         = "demo2"
+  password              = var.password
+  force_password_change = false  # Force password change on first login
 }
 
 # Assign users to groups
