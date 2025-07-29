@@ -29,7 +29,7 @@ resource "azuread_application" "vault" {
   }
 
   group_membership_claims = [
-    "All"
+    "SecurityGroup"
   ]
 
   optional_claims {

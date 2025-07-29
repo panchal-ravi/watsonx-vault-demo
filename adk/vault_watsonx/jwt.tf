@@ -32,9 +32,7 @@ resource "vault_jwt_auth_backend" "jwt" {
   namespace          = var.namespace != null ? var.namespace : null
   path               = var.path
   type               = "jwt"
-  # For JWT authentication, we only need the discovery URL for public key verification
   oidc_discovery_url = var.oidc_discovery_url
-  # Client credentials are not needed for JWT validation
   default_role       = "default"
 }
 
@@ -49,27 +47,10 @@ resource "vault_jwt_auth_backend_role" "default" {
   verbose_oidc_logging    = true # Enable verbose logging to see user info
   token_ttl               = var.token_ttl
   token_max_ttl           = var.token_max_ttl
-  # Don't assign any default policies - let group membership drive policy assignment
-  # token_policies          = []  # Empty - policies come from groups only
   
   # Bind to specific audience (client_id) - this validates the JWT was issued for our app
   bound_audiences = [var.oidc_client_id]
 }
-
-
-# module "azure_oidc" {
-#   source  = "bmcdonald05/oidc-auth-method/vault"
-#   version = "1.0.4"
-
-#   namespace                 = "admin/hashi-redhat"
-#   oidc_discovery_url        = var.oidc_discovery_url
-#   oidc_client_id            = var.oidc_client_id
-#   oidc_client_secret        = var.oidc_client_secret
-#   allowed_redirect_uris     = var.allowed_redirect_uris
-#   user_claim                = "name" #should be "sub" or "oid" following the recommendation from Azure. In my lab I use name to more easily identify users.
-#   additional_policies       = [vault_policy.admins.name]
-#   external_group_identifier = var.external_group_identifier # AAD uses the AD group object ID to identify the group
-# }
 
 # Additional external groups - map Vault groups and policies to EntraId groups
 resource "vault_identity_group" "external_groups" {
