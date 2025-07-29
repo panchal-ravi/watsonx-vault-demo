@@ -11,13 +11,22 @@ path "auth/token/renew-self" {
     capabilities = ["update"]
 }
 
-# Read-only access to watsonxdemo application secrets
-path "kv/data/watsonxdemo/*" {
+# Read-only access to watsonxdemo application secrets (excluding admin paths)
+path "kv/data/watsonxdemo/shared/*" {
     capabilities = ["read"]
 }
 
-path "kv/metadata/watsonxdemo/*" {
+path "kv/metadata/watsonxdemo/shared/*" {
     capabilities = ["read", "list"]
+}
+
+# Explicitly deny admin paths
+path "kv/data/watsonxdemo/admin/*" {
+    capabilities = ["deny"]
+}
+
+path "kv/metadata/watsonxdemo/admin/*" {
+    capabilities = ["deny"]
 }
 
 # Group-specific secrets using group alias templating
