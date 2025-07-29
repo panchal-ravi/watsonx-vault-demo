@@ -19,7 +19,19 @@ orchestrate env activate watsonxdemo
 
 ```bash
 orchestrate connections add --app-id watsonxdemo
-orchestrate connections import --file ../adk-vault-connection.yaml
+orchestrate connections import --file ../adk-vault-connection-onbehalf.yaml
+```
+
+```bash
+export CLIENTSEC=
+orchestrate connections set-identity-provider \
+  --app-id watsonxdemo \
+  --env live \
+  --url https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token \
+  --client-id ced4c4a3-fdbf-4796-8999-2d7e8c7afae3 \
+  --client-secret $CLIENTSEC \
+  --scope api://$SCOPE/vault.secrets.read \
+  --grant-type=urn:ietf:params:oauth:grant-type:jwt-bearer
 ```
 
 
