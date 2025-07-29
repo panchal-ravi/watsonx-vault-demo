@@ -1,30 +1,3 @@
-resource "vault_policy" "admins" {
-  name      = "vault-admins"
-  policy    = <<EOT
-#vault-admin.hcl
-#Allows very broad access and should not be used in production
-
-# permit access to all sys backend configurations to administer Vault itself
-path "sys/*" {
-  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-}
-
-# manage Vault auth methods
-path "auth/*" {
-  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-}
-
-# manage Vault identities
-path "identity/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-# permit access to administer the OIDC auth method
-path "oidc/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-EOT
-}
 
 resource "vault_jwt_auth_backend" "jwt" {
   description = "JWT Authentication Method"
