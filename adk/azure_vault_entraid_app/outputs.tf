@@ -35,3 +35,23 @@ output "application_uri" {
   value       = azuread_application.vault.identifier_uris
   description = "Configured Application ID URIs of Azure AD application."
 }
+
+output "vault_admins_group_id" {
+  value       = azuread_group.vault_admins.object_id
+  description = "Object ID of Vault Admins group."
+}
+
+output "vault_users_group_id" {
+  value       = azuread_group.vault_users.object_id
+  description = "Object ID of Vault Users group."
+}
+
+output "demo1_user_id" {
+  value       = azuread_user.demo1.object_id
+  description = "Object ID of demo1 user."
+}
+
+output "demo2_user_id" {
+  value       = azuread_user.demo2.object_id
+  description = "Object ID of demo2 user."
+}

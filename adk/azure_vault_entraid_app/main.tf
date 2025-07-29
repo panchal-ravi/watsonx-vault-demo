@@ -53,6 +53,16 @@ resource "azuread_application" "vault" {
       id   = "98830695-27a2-44f7-8c18-0c3ebc9698f6" # GroupMember.Read.All
       type = "Role"
     }
+    
+    resource_access {
+      id   = "62a82d76-70ea-41e2-9197-370581804d09" # Group.Read.All
+      type = "Role"
+    }
+    
+    resource_access {
+      id   = "7ab1d382-f21e-4acd-a863-ba3e13f7da61" # Directory.Read.All
+      type = "Role"
+    }
   }
 
   identifier_uris = [
@@ -103,4 +113,47 @@ resource "azurerm_role_assignment" "vault_role" {
 resource "azuread_application_password" "vault" {
   display_name   = "Vault"
   application_id = azuread_application.vault.id
+}
+
+# Create Azure AD Groups for Vault roles
+resource "azuread_group" "vault_admins" {
+  display_name     = "Vault-Admins"
+  mail_nickname    = "vault-admins"
+  description      = "Users with admin access to Vault"
+  security_enabled = true
+}
+
+resource "azuread_group" "vault_users" {
+  display_name     = "Vault-Users"
+  mail_nickname    = "vault-users"
+  description      = "Users with read access to Vault"
+  security_enabled = true
+}
+
+# Create demo users
+resource "azuread_user" "demo1" {
+  user_principal_name = "demo1@${data.azuread_domains.current.domains[0].domain_name}"
+  display_name        = "Demo User 1"
+  mail_nickname       = "demo1"
+  password            = var.password
+  force_password_change = false
+}
+
+resource "azuread_user" "demo2" {
+  user_principal_name = "demo2@${data.azuread_domains.current.domains[0].domain_name}"
+  display_name        = "Demo User 2"
+  mail_nickname       = "demo2"
+  password            = var.password
+  force_password_change = false
+}
+
+# Assign users to groups
+resource "azuread_group_member" "demo1_admin" {
+  group_object_id  = azuread_group.vault_admins.object_id
+  member_object_id = azuread_user.demo1.object_id
+}
+
+resource "azuread_group_member" "demo2_user" {
+  group_object_id  = azuread_group.vault_users.object_id
+  member_object_id = azuread_user.demo2.object_id
 }
