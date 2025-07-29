@@ -3,15 +3,15 @@ app_id: vaultapp
 environments:
   draft:
     url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
-    client-id: <wxo-entra-client-id>
-    client-secret: <wxo-entra-client-secret>
-    scope: api://{vault-client-id}/Vault.Access
+    client-id: ced4c4a3-fdbf-4796-8999-2d7e8c7afae3
+    client-secret: 
+    scope: api://hashicorp-vault-app-99f8d671/vault.secrets.read
     grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
   live:
     url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
-    client-id: <wxo-entra-client-id>
-    client-secret: <wxo-entra-client-secret>
-    scope: api://{vault-client-id}/Vault.Access
+    client-id: ced4c4a3-fdbf-4796-8999-2d7e8c7afae3
+    client-secret: 
+    scope: api://hashicorp-vault-app-99f8d671/vault.secrets.read
     grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
 
 
@@ -19,7 +19,4 @@ environments:
 
 # https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/authorize
 # https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
-
-
-
 
