@@ -78,7 +78,6 @@ resource "azuread_application" "vault" {
   sign_in_audience        = "AzureADMyOrg"
   owners                  = var.app_owners
 
-
 }
 
 resource "azuread_service_principal" "vault" {

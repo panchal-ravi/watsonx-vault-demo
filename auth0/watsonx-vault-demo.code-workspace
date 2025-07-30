@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "../../../sko_aap_deployment_aws"
+		},
+		{
+			"path": "../../../platform-ibm-vault"
 		}
 	],
 	"settings": {}
