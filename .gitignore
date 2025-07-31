@@ -17,3 +17,5 @@ terraform.auto.tfvars
 adk/.env
 *.tfstate
 *.tfstate.*
+*.sh
+*.py
