@@ -14,7 +14,9 @@ resource "azuread_application" "vault" {
   web {
     redirect_uris = [
       "${var.vault_ui_redirect_address}/ui/vault/auth/oidc/oidc/callback",
-      "${var.vault_cli_redirect_address}/oidc/callback"
+      "${var.vault_cli_redirect_address}/oidc/callback",
+      "http://localhost:8080/callback"
+
     ]
 
     implicit_grant {
