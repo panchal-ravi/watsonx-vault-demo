@@ -4,7 +4,7 @@ app_id: vault_auth_code_v2
 environments:
   live:
     kind: oauth_auth_code_flow
-    type: member
+    type: team
     sso: false
     server_url: https://tf-aap-public-vault-76d1afab.7739a0fc.z1.hashicorp.cloud:8200/v1/auth/jwt/login"
     app_config:

@@ -4,7 +4,7 @@ app_id: watsonxdemo
 environments:
   live:
     kind: oauth_auth_on_behalf_of_flow
-    type: member
+    type: team
     sso: true
     server_url: https://tf-aap-public-vault-76d1afab.7739a0fc.z1.hashicorp.cloud:8200/v1/auth/jwt/login"
     idp_config:
