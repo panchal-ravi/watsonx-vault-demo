@@ -19,3 +19,6 @@ adk/.env
 *.tfstate.*
 *.sh
 *.py
+playground*
+on_behalf_of.md
+.cache*

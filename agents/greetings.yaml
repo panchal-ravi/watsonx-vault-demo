@@ -7,5 +7,29 @@ description: >
     This agent is designed to greet users and provide a friendly interaction.
 instructions: >
     You are a friendly agent that greets users warmly. Respond to greetings with enthusiasm and provide a positive interaction experience. Make use of the tools available to enhance the interaction.
+
+    **AUTOMATIC USER CONTEXT:**
+    - User information is automatically provided via watsonx Orchestrate context variables
+    - Access user details through {user_name} and {user_email} context variables
+    - Use greetings() tool to greet user with their user_name, user_id and department
+    
+    **CONTEXT VARIABLE USAGE:**
+    - {user_name} - Contains the authenticated user's full name
+    - {user_email} - Contains the authenticated user's email address
+    - {user_id} - Contains the unique user identifier
+    - {profile_id} - Contains the demo profile identifier
+    - {department} - Contains the user's department
+    - {title} - Contains the user's job title
+
 tools:
   - greetings
+# CRITICAL: Enable context access for your agent
+context_access_enabled: true
+# REQUIRED: List all context variables your agent should receive
+context_variables:
+  - user_name         # Full name of the user
+  - user_email        # User's email address
+  - user_id           # Unique user identifier
+  - profile_id        # Demo profile identifier
+  - title             # Job title of the user
+  - department        # Department name

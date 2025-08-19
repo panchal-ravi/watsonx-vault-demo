@@ -1,0 +1,32 @@
+spec_version: v1
+kind: connections
+app_id: watsonx_vault_demo
+environments:
+  draft:
+    kind: oauth_auth_on_behalf_of_flow
+    type: member
+    sso: true
+    server_url: https://login.microsoftonline.com/0aa96723-98b3-4842-9673-73bafaafde70/oauth2/v2.0/token
+    idp_config:
+      header:
+        content-type: application/x-www-form-urlencoded
+      body:
+        requested_token_use: on_behalf_of
+        requested_token_type: urn:ietf:params:oauth:token-type:access_token
+    app_config:
+      header:
+        content-type: application/x-www-form-urlencoded
+  live:
+    kind: oauth_auth_on_behalf_of_flow
+    type: member
+    sso: true
+    server_url: https://login.microsoftonline.com/0aa96723-98b3-4842-9673-73bafaafde70/oauth2/v2.0/token
+    idp_config:
+      header:
+        content-type: application/x-www-form-urlencoded
+      body:
+        requested_token_use: on_behalf_of
+        requested_token_type: urn:ietf:params:oauth:token-type:access_token
+    app_config:
+      header:
+        content-type: application/x-www-form-urlencoded

@@ -23,16 +23,6 @@ JWT_TOKEN=<COPY_YOUR_JWT_TOKEN_HERE>
 ```sh
 vault auth enable jwt
 
-vault policy write metrics -<<EOF
-path "sys/metrics*" {
-capabilities = ["read", "list"]
-}
-EOF
-
-vault write auth/jwt/config \
- oidc_discovery_url="https://AUTH0_DOMAIN.us.auth0.com/" 
-
-
 vault write auth/jwt/role/watsonx \
     policies="metrics" \
     user_claim="sub" \
@@ -40,8 +30,7 @@ vault write auth/jwt/role/watsonx \
     bound_audiences="https://AUTH0_DOMAIN.us.auth0.com/api/v2/" \
     bound_subject="<COPY_SUBJECT_FROM_JWT_TOKEN_HERE>"
 ```
-
 ### Test Vault login using JWT auth method
 ```sh
-vault write auth/jwt/login role=watsonx jwt=$JWT_TOKEN
+vault write auth/jwt/login role=default jwt=$obo_access_token
 ```
