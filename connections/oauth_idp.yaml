@@ -2,15 +2,15 @@ kind: set-identity-provider
 app_id: watsonx_vault_demo
 environments:
   draft:
-    url: https://login.microsoftonline.com/0aa96723-98b3-4842-9673-73bafaafde70/oauth2/v2.0/token
-    client-id: 227fe787-2f68-4c2f-9ca2-118f2b7c69fa
+    url: https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
+    client-id: YOUR_CLIENT_ID_HERE
     client-secret: YOUR_CLIENT_SECRET_HERE
-    scope: api://227fe787-2f68-4c2f-9ca2-118f2b7c69fa/Accounts.Read
+    scope: api://YOUR_CLIENT_ID_HERE/YOUR_SCOPE
     grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
   live:
-    url: https://login.microsoftonline.com/0aa96723-98b3-4842-9673-73bafaafde70/oauth2/v2.0/token
-    client-id: 227fe787-2f68-4c2f-9ca2-118f2b7c69fa
+    url: https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
+    client-id: YOUR_CLIENT_ID_HERE
     client-secret: YOUR_CLIENT_SECRET_HERE
-    scope: api://227fe787-2f68-4c2f-9ca2-118f2b7c69fa/Accounts.Read
+    scope: api://YOUR_CLIENT_ID_HERE/YOUR_SCOPE
     grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
 

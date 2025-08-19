@@ -6,7 +6,7 @@ environments:
     kind: oauth_auth_on_behalf_of_flow
     type: member
     sso: true
-    server_url: https://login.microsoftonline.com/0aa96723-98b3-4842-9673-73bafaafde70/oauth2/v2.0/token
+    server_url: https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
     idp_config:
       header:
         content-type: application/x-www-form-urlencoded
@@ -20,7 +20,7 @@ environments:
     kind: oauth_auth_on_behalf_of_flow
     type: member
     sso: true
-    server_url: https://login.microsoftonline.com/0aa96723-98b3-4842-9673-73bafaafde70/oauth2/v2.0/token
+    server_url: https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
     idp_config:
       header:
         content-type: application/x-www-form-urlencoded
