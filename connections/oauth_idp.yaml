@@ -2,13 +2,13 @@ kind: set-identity-provider
 app_id: watsonx_vault_demo
 environments:
   draft:
-    url: https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
+    url: https://login.microsoftonline.com/{YOUR_TENANT_ID}/oauth2/v2.0/token
     client-id: YOUR_CLIENT_ID_HERE
     client-secret: YOUR_CLIENT_SECRET_HERE
     scope: api://YOUR_CLIENT_ID_HERE/YOUR_SCOPE
     grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
   live:
-    url: https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
+    url: https://login.microsoftonline.com/{YOUR_TENANT_ID}/oauth2/v2.0/token
     client-id: YOUR_CLIENT_ID_HERE
     client-secret: YOUR_CLIENT_SECRET_HERE
     scope: api://YOUR_CLIENT_ID_HERE/YOUR_SCOPE
