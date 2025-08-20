@@ -22,3 +22,4 @@ adk/.env
 playground*
 on_behalf_of.md
 .cache*
+*.pem
