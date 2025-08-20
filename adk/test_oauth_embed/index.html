@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watson Orchestrate Embedded Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .info {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        #root {
+            min-height: 400px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Watson Orchestrate Embedded Test</h1>
+        
+        <div class="info">
+            <strong>Test Configuration:</strong>
+            <ul>
+                <li><strong>Orchestration ID:</strong> 20250818-2250-0903-906c-a26b84d378cd_20250818-2250-2466-2080-dc6415c827cd</li>
+                <li><strong>Agent ID:</strong> e1599f44-6586-4c4c-9690-ad4631508a5a</li>
+                <li><strong>Environment ID:</strong> cb24aa31-7d0b-447b-8a4b-116d0ff591a1</li>
+                <li><strong>Host URL:</strong> https://dl.watson-orchestrate.ibm.com</li>
+            </ul>
+        </div>
+
+        <div class="status">
+            <strong>Status:</strong> <span id="status">Loading Watson Orchestrate...</span>
+        </div>
+
+        <div id="root">
+            <p>Watson Orchestrate chat widget will appear here</p>
+        </div>
+    </div>
+
+    <!-- Watson Orchestrate Embedded Script -->
+    <script>
+        // Update status
+        document.getElementById('status').textContent = 'Initializing Watson Orchestrate configuration...';
+        
+        window.wxOConfiguration = {
+            orchestrationID: "20250818-2250-0903-906c-a26b84d378cd_20250818-2250-2466-2080-dc6415c827cd",
+            hostURL: "https://dl.watson-orchestrate.ibm.com",
+            rootElementID: "root",
+            showLauncher: true,
+            chatOptions: {
+                agentId: "e1599f44-6586-4c4c-9690-ad4631508a5a",
+                agentEnvironmentId: "cb24aa31-7d0b-447b-8a4b-116d0ff591a1"
+            }
+        };
+
+        setTimeout(function () {
+            document.getElementById('status').textContent = 'Loading Watson Orchestrate script...';
+            
+            const script = document.createElement('script');
+            script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+            
+            script.addEventListener('load', function () {
+                document.getElementById('status').textContent = 'Watson Orchestrate loaded successfully!';
+                console.log('Watson Orchestrate script loaded');
+                wxoLoader.init();
+            });
+            
+            script.addEventListener('error', function () {
+                document.getElementById('status').textContent = 'Error loading Watson Orchestrate script';
+                console.error('Failed to load Watson Orchestrate script');
+            });
+            
+            document.head.appendChild(script);
+        }, 0);
+    </script>
+</body>
+</html>
