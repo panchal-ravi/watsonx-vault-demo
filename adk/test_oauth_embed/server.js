@@ -256,10 +256,13 @@ app.get('/callback', async (req, res) => {
                 watsonJWT = createWatsonJWT(userInfo, sessionId, access_token);
                 session.watson_jwt = watsonJWT;
                 sessions.set(sessionId, session);
-                console.log(`🎫 Watson JWT created: ${watsonJWT.substring(0, 50)}...`);
+                console.log(`🎫 Watson JWT created successfully`);
+                console.log(`   - Token length: ${watsonJWT.length} characters`);
+                console.log(`   - Token preview: ${watsonJWT.substring(0, 100)}...`);
             }
         } catch (jwtError) {
             console.warn(`⚠️  Watson JWT creation failed: ${jwtError.message}`);
+            console.error(jwtError.stack);
         }
         
         // Render success page with Watson Orchestrate
@@ -295,6 +298,16 @@ app.get('/api/jwt', (req, res) => {
         console.error(`JWT creation error: ${error.message}`);
         res.status(500).json({ error: 'Failed to create JWT' });
     }
+});
+
+// API endpoint to get Watson configuration
+app.get('/api/watson-config', (req, res) => {
+    res.json({
+        orchestrationID: WATSON_CONFIG.orchestration_id,
+        hostURL: WATSON_CONFIG.host_url,
+        agentId: WATSON_CONFIG.agent_id,
+        agentEnvironmentId: WATSON_CONFIG.agent_environment_id
+    });
 });
 
 // API endpoint to get user info
@@ -482,7 +495,7 @@ function generateSuccessPage(userInfo, watsonJWT, tokenData) {
             window.wxOConfiguration = {
                 clientVersion: 'latest',
                 orchestrationID: "${WATSON_CONFIG.orchestration_id}",
-                hostUrl: "${WATSON_CONFIG.host_url}",
+                hostURL: "${WATSON_CONFIG.host_url}",
                 rootElementId: "root",
                 layout: 'embedded',
                 showLauncher: false,
@@ -500,7 +513,7 @@ function generateSuccessPage(userInfo, watsonJWT, tokenData) {
             };
 
             const script = document.createElement('script');
-            script.src = \`\${window.wxOConfiguration.hostUrl}/wxochat/wxoLoader.js?embed=true\`;
+            script.src = \`\${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true\`;
             script.addEventListener('load', function () {
                 console.log('Watson Orchestrate script loaded');
                 wxoLoader.init();

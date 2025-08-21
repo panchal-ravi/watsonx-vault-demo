@@ -76,7 +76,7 @@
         }
     </style>
     
-    <!-- Watson Orchestrate Script - matches README example -->
+    <!-- Simplified Watson Orchestrate Script - matches README example -->
     <script>
         // Initialize Watson when JWT token is available
         function initWatsonWithToken(token) {
@@ -85,11 +85,11 @@
                 hostURL: "https://dl.watson-orchestrate.ibm.com",
                 rootElementID: "root",
                 showLauncher: true,
-                token: token,
+                token: token, // Add JWT token here
                 chatOptions: {
                     agentId: "e1599f44-6586-4c4c-9690-ad4631508a5a",
                     agentEnvironmentId: "cb24aa31-7d0b-447b-8a4b-116d0ff591a1"
-                },
+                }
             };
 
             setTimeout(function () {
@@ -100,6 +100,7 @@
                 });
                 document.head.appendChild(script);
             }, 0);
+        }
     </script>
 </head>
 <body>
@@ -156,7 +157,181 @@
     </div>
 
     <script>
-        // Check authentication status and initialize Watson Orchestrate
+        // Debug logging helper
+        function debugLog(message, data) {
+            const debugConsole = document.getElementById('debug-console');
+            if (debugConsole) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data) : ''}`;
+                debugConsole.appendChild(logEntry);
+                debugConsole.scrollTop = debugConsole.scrollHeight;
+            }
+            console.log(message, data || '');
+        }
+
+        // Enhanced message handler for streaming responses
+        function handleStreamingMessage(event) {
+            debugLog('Streaming message received', { type: event.event, data: event.data });
+            
+            // Process different event types
+            switch(event.event) {
+                case 'message.delta':
+                    // Handle incremental message updates
+                    if (event.data?.delta?.content) {
+                        debugLog('Message delta content', event.data.delta.content);
+                    }
+                    break;
+                    
+                case 'message.created':
+                    // Handle complete message
+                    if (event.data?.message?.content) {
+                        debugLog('Complete message received', event.data.message.content);
+                    }
+                    break;
+                    
+                case 'run.started':
+                    debugLog('Run started', { run_id: event.data.run_id });
+                    break;
+                    
+                case 'run.completed':
+                    debugLog('Run completed', { run_id: event.data.run_id });
+                    break;
+                    
+                case 'done':
+                    debugLog('Stream completed');
+                    break;
+            }
+        }
+
+        // Enhanced event handlers with proper streaming support
+        function onUserDefinedContentTypeReceived(userDefinedMessageObject) {
+            debugLog('User defined content received', userDefinedMessageObject);
+            return ` <cds-code-snippet>
+                node -v Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis,
+                veritatis voluptate id incidunt molestiae officia possimus, quasi itaque
+                alias, architecto hic, dicta fugit? Debitis delectus quidem explicabo vitae
+                laboriosam!
+            </cds-code-snippet>
+            <br> <br>
+            <div style='background-color:orange;color:white;padding:10px;'>
+                <p>${userDefinedMessageObject.template}</p>
+            </div>
+            `;
+        }
+
+        function preSendHandler(event) {
+            if (event?.message?.content) {
+                debugLog('Pre-send', event.message.content);
+            }
+            return event; // Make sure to return the event
+        }
+
+        function sendHandler(event) {
+            debugLog('Send event', event);
+        }
+
+        function preReceiveHandler(event) {
+            debugLog('Pre-receive handler called', event);
+            
+            // Check for streaming data in different possible locations
+            if (event?.data) {
+                handleStreamingMessage(event);
+            }
+            
+            // Process content modifications
+            if (event?.content) {
+                event.content = event.content.map((element) => {
+                    if (element?.text?.includes('assistant')) {
+                        element.text = element.text.replace('assistant', 'Agent');
+                    }
+                    return element;
+                });
+            }
+            
+            return event; // Always return the event
+        }
+
+        function receiveHandler(event) {
+            debugLog('Receive handler called', event);
+            
+            // Check if this is a streaming event
+            if (event?.data && event?.event) {
+                handleStreamingMessage(event);
+            }
+        }
+
+        function onLoad(instance) {
+            debugLog('Watson Orchestrate loaded successfully');
+            
+            // Enhanced event handlers for streaming
+            instance.on('chat:ready', (event) => {
+                debugLog('Chat ready', event);
+            });
+            
+            instance.on('pre:send', preSendHandler);
+            instance.on('send', sendHandler);
+            instance.on('pre:receive', preReceiveHandler);
+            instance.on('receive', receiveHandler);
+            
+            // Stream-specific event handlers
+            instance.on('message:stream:start', (event) => {
+                debugLog('Stream started', event);
+            });
+            
+            instance.on('message:stream:delta', (event) => {
+                debugLog('Stream delta', event);
+            });
+            
+            instance.on('message:stream:end', (event) => {
+                debugLog('Stream ended', event);
+            });
+            
+            // Token management
+            instance.on('identityTokenExpired', async (event) => {
+                debugLog('JWT token expired', event);
+                // Attempt to refresh token
+                try {
+                    const response = await fetch('/api/jwt');
+                    if (response.ok) {
+                        const data = await response.json();
+                        instance.updateIdentityToken(data.jwt);
+                        debugLog('Token refreshed successfully');
+                    }
+                } catch (error) {
+                    debugLog('Failed to refresh token', error.message);
+                }
+            });
+            
+            instance.on('authTokenNeeded', async (event) => {
+                debugLog('Auth token needed', event);
+                try {
+                    const response = await fetch('/api/jwt');
+                    if (response.ok) {
+                        const data = await response.json();
+                        event.authToken = data.jwt;
+                        debugLog('Auth token provided');
+                    }
+                } catch (error) {
+                    debugLog('Failed to provide auth token', error.message);
+                }
+            });
+            
+            // Error handler
+            instance.on('error', (error) => {
+                debugLog('Watson Orchestrate error', error);
+            });
+            
+            // Store instance globally for debugging
+            window.wxoChatInstance = instance;
+            
+            // Check if streaming is supported
+            if (instance.supportsStreaming && typeof instance.supportsStreaming === 'function') {
+                debugLog('Streaming support check', instance.supportsStreaming());
+            }
+        }
+
+        // Check authentication status
         async function checkAuthStatus() {
             try {
                 const response = await fetch('/api/user');
@@ -171,18 +346,17 @@
                     warningElement.style.display = 'none';
                     authSection.style.display = 'block';
                     
-                    // User is authenticated, initialize Watson Orchestrate
                     if (data.hasWatsonJWT) {
                         initializeWatsonOrchestrate();
                     } else {
-                        console.warn('User authenticated but no Watson JWT available');
+                        debugLog('User authenticated but no Watson JWT available');
                     }
                 } else {
                     statusElement.textContent = 'Not authenticated';
                     statusElement.style.color = '#dc3545';
                 }
             } catch (error) {
-                console.log('Auth check failed:', error);
+                debugLog('Auth check failed', error.message);
                 document.getElementById('status-text').textContent = 'Authentication status unknown';
             }
         }
@@ -195,16 +369,33 @@
                     const data = await response.json();
                     return data.jwt;
                 } else {
-                    console.error('Failed to fetch JWT:', response.statusText);
+                    debugLog('Failed to fetch JWT', response.statusText);
                     return null;
                 }
             } catch (error) {
-                console.error('Error fetching JWT:', error);
+                debugLog('Error fetching JWT', error.message);
                 return null;
             }
         }
 
-        // Initialize Watson Orchestrate - simplified version
+        // Fetch Watson configuration from server
+        async function fetchWatsonConfig() {
+            try {
+                const response = await fetch('/api/watson-config');
+                if (response.ok) {
+                    const config = await response.json();
+                    return config;
+                } else {
+                    debugLog('Failed to fetch Watson config', response.statusText);
+                    return null;
+                }
+            } catch (error) {
+                debugLog('Error fetching Watson config', error.message);
+                return null;
+            }
+        }
+
+        // Initialize Watson Orchestrate - simplified version using README example
         async function initializeWatsonOrchestrate() {
             const token = await fetchJWT();
             
@@ -232,6 +423,16 @@
                     statusElement.style.color = '#007bff';
                 });
             }
+        });
+
+        // Add global error handler for debugging
+        window.addEventListener('error', function(event) {
+            debugLog('Global error', {
+                message: event.message,
+                source: event.filename,
+                line: event.lineno,
+                col: event.colno
+            });
         });
     </script>
 </body>

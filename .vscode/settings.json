@@ -1,0 +1,11 @@
+{
+  "mcp.mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "cwd": "/Users/simon.lynch/git/watsonx-vault-demo/adk/test_oauth_embed"
+    }
+  }
+}
