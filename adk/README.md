@@ -47,3 +47,14 @@ orchestrate connections set-identity-provider \
   --scope api://$SCOPE/vault.secrets.read \
   --grant-type=urn:ietf:params:oauth:grant-type:jwt-bearer
 ```
+
+
+
+## EntraId token is embedded in client JWT token
+
+user_payload: {
+name: 'User',
+custom_user_id: userID,
+custom_message: 'hi hello',
+sso_token: '<INSERT_SSO_TOKEN_HERE>'
+}

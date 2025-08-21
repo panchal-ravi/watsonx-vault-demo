@@ -59,6 +59,8 @@ https://developer.watson-orchestrate.ibm.com/manage/channels
 orchestrate channels webchat embed --agent-name=greetings
 ```
 
+Note the output here is incomplete
+
 ```
             <script>
                 window.wxOConfiguration = {

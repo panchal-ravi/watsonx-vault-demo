@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watson Orchestrate Embedded Test</title>
+    <title>Watson Orchestrate with Azure AD Authentication</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,58 +30,183 @@
             padding: 15px;
             margin-bottom: 20px;
         }
-        .status {
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .login-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+        }
+        .login-button {
+            display: inline-block;
+            background-color: #0078d4;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        .login-button:hover {
+            background-color: #106ebe;
+        }
+        .features {
+            margin-top: 30px;
+        }
+        .features ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .auth-status {
             margin-top: 20px;
             padding: 10px;
             border-radius: 4px;
             background-color: #fff3cd;
             border: 1px solid #ffeaa7;
         }
-        #root {
-            min-height: 400px;
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
-            color: #666;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Watson Orchestrate Embedded Test</h1>
+        <h1>🤖 Watson Orchestrate with Azure AD</h1>
         
         <div class="info">
-            <strong>Test Configuration:</strong>
+            <strong>Welcome to Watson Orchestrate Integration Demo</strong>
+            <p>This application demonstrates secure authentication with Azure AD (Entra ID) and integration with Watson Orchestrate embedded chat.</p>
+        </div>
+
+        <div class="warning" id="auth-warning">
+            <strong>⚠️ Authentication Required</strong>
+            <p>You must authenticate with Azure AD to access Watson Orchestrate. Click the login button below to begin the OAuth2 flow.</p>
+        </div>
+
+        <div class="login-section">
+            <h2>🔐 Secure Login</h2>
+            <p>Authenticate with your Azure AD credentials to access the Watson Orchestrate chat assistant.</p>
+            <a href="/login" class="login-button">🚀 Login with Azure AD</a>
+            
+            <div class="auth-status" id="auth-status">
+                <strong>Status:</strong> <span id="status-text">Not authenticated</span>
+            </div>
+        </div>
+
+        <div class="features">
+            <h3>📋 What happens when you login:</h3>
             <ul>
-                <li><strong>Orchestration ID:</strong> 20250818-2250-0903-906c-a26b84d378cd_20250818-2250-2466-2080-dc6415c827cd</li>
-                <li><strong>Agent ID:</strong> e1599f44-6586-4c4c-9690-ad4631508a5a</li>
-                <li><strong>Environment ID:</strong> cb24aa31-7d0b-447b-8a4b-116d0ff591a1</li>
-                <li><strong>Host URL:</strong> https://dl.watson-orchestrate.ibm.com</li>
+                <li><strong>OAuth2 Authorization Code Flow:</strong> Secure PKCE authentication with Azure AD</li>
+                <li><strong>JWT Token Creation:</strong> Custom Watson JWT with encrypted user payload</li>
+                <li><strong>Watson Orchestrate Access:</strong> Embedded chat with your authenticated identity</li>
+                <li><strong>SSO Token Integration:</strong> Azure AD access token passed to Watson for backend operations</li>
             </ul>
         </div>
 
-        <div class="status">
-            <strong>Status:</strong> <span id="status">Loading Watson Orchestrate...</span>
+        <div class="features">
+            <h3>🔧 Technical Configuration:</h3>
+            <ul>
+                <li><strong>Tenant ID:</strong> Azure AD tenant for authentication</li>
+                <li><strong>Scope:</strong> api://hashicorp-vault-app-99f8d671/vault.secrets.read</li>
+                <li><strong>Watson Orchestration:</strong> AI-powered chat assistant</li>
+                <li><strong>Security:</strong> RSA-encrypted user payload, CSRF protection</li>
+            </ul>
         </div>
 
-        <div id="root">
-            <p>Watson Orchestrate chat widget will appear here</p>
+        <div id="authenticated-section" style="display: none;">
+            <h3>✅ Authentication Successful</h3>
+            <p>You are now authenticated. The Watson Orchestrate chat will be available after login.</p>
         </div>
     </div>
 
-    <!-- Watson Orchestrate Embedded Script -->
     <script>
+        // Check authentication status
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/user');
+                const statusElement = document.getElementById('status-text');
+                const warningElement = document.getElementById('auth-warning');
+                const authSection = document.getElementById('authenticated-section');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusElement.textContent = `Authenticated as ${data.user.name || data.user.preferred_username}`;
+                    statusElement.style.color = '#28a745';
+                    warningElement.style.display = 'none';
+                    authSection.style.display = 'block';
+                } else {
+                    statusElement.textContent = 'Not authenticated';
+                    statusElement.style.color = '#dc3545';
+                }
+            } catch (error) {
+                console.log('Auth check failed:', error);
+                document.getElementById('status-text').textContent = 'Authentication status unknown';
+            }
+        }
+
+        // Check auth status on page load
+        checkAuthStatus();
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginButton = document.querySelector('.login-button');
+            loginButton.addEventListener('click', function(e) {
+                const statusElement = document.getElementById('status-text');
+                statusElement.textContent = 'Redirecting to Azure AD...';
+                statusElement.style.color = '#007bff';
+            });
+        });
+    </script>
+</body>
+</html>
+
+        function onUserDefinedContentTypeReceived(userDefinedMessageObject) {
+            return ` <cds-code-snippet>
+                node -v Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis,
+                veritatis voluptate id incidunt molestiae officia possimus, quasi itaque
+                alias, architecto hic, dicta fugit? Debitis delectus quidem explicabo vitae
+                laboriosam!
+            </cds-code-snippet>
+            <br> <br>
+            <div style='background-color:orange;color:white;padding:10px;'>
+                <p>${userDefinedMessageObject.template}</p>
+            </div>
+            `;
+        }
+
+        function onLoad(instance) {
+            console.log('RDEBUG onLoad in embed script ', instance)
+            instance.on('chatstarted', (instance) => {
+                window.wxoChatInstance = instance;
+            });
+            instance.on('pre:send', preSendHandler);
+            instance.on('send', sendHandler);
+            instance.on('pre:receive', preReceiveHandler);
+            instance.on('receive', receiveHandler);
+        }
+
         // Update status
         document.getElementById('status').textContent = 'Initializing Watson Orchestrate configuration...';
         
+        // Enhanced Watson Orchestrate configuration
         window.wxOConfiguration = {
+            clientVersion: 'latest',
             orchestrationID: "20250818-2250-0903-906c-a26b84d378cd_20250818-2250-2466-2080-dc6415c827cd",
-            hostURL: "https://dl.watson-orchestrate.ibm.com",
-            rootElementID: "root",
-            showLauncher: true,
+            hostUrl: "https://dl.watson-orchestrate.ibm.com",
+            rootElementId: "root",
+            layout: 'small',
+            showLauncher: false, // Set to false to render the chat window directly
+            token: '<sso_token>',
             chatOptions: {
+                onUserDefinedContentTypeReceived: onUserDefinedContentTypeReceived,
+                onLoad: onLoad,
                 agentId: "e1599f44-6586-4c4c-9690-ad4631508a5a",
                 agentEnvironmentId: "cb24aa31-7d0b-447b-8a4b-116d0ff591a1"
             }
@@ -91,11 +216,11 @@
             document.getElementById('status').textContent = 'Loading Watson Orchestrate script...';
             
             const script = document.createElement('script');
-            script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+            script.src = `${window.wxOConfiguration.hostUrl}/wxochat/wxoLoader.js?embed=true`;
             
             script.addEventListener('load', function () {
-                document.getElementById('status').textContent = 'Watson Orchestrate loaded successfully!';
-                console.log('Watson Orchestrate script loaded');
+                document.getElementById('status').textContent = 'Watson Orchestrate loaded successfully with enhanced features!';
+                console.log('Watson Orchestrate script loaded with event handlers');
                 wxoLoader.init();
             });
             
