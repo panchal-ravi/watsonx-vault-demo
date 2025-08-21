@@ -75,32 +75,6 @@
             border: 1px solid #ffeaa7;
         }
     </style>
-    
-    <!-- Watson Orchestrate Script - matches README example -->
-    <script>
-        // Initialize Watson when JWT token is available
-        function initWatsonWithToken(token) {
-            window.wxOConfiguration = {
-                orchestrationID: "20250818-2250-0903-906c-a26b84d378cd_20250818-2250-2466-2080-dc6415c827cd",
-                hostURL: "https://dl.watson-orchestrate.ibm.com",
-                rootElementID: "root",
-                showLauncher: true,
-                token: token,
-                chatOptions: {
-                    agentId: "e1599f44-6586-4c4c-9690-ad4631508a5a",
-                    agentEnvironmentId: "cb24aa31-7d0b-447b-8a4b-116d0ff591a1"
-                },
-            };
-
-            setTimeout(function () {
-                const script = document.createElement('script');
-                script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
-                script.addEventListener('load', function () {
-                    wxoLoader.init();
-                });
-                document.head.appendChild(script);
-            }, 0);
-    </script>
 </head>
 <body>
     <div class="container">
@@ -152,7 +126,9 @@
         </div>
         
         <!-- Watson Orchestrate Root Element -->
-        <div id="root"></div>
+        <div id="root">
+            <p style="text-align: center; color: #666; margin: 0;">Watson Orchestrate chat will appear here after authentication</p>
+        </div>
     </div>
 
     <script>
@@ -187,36 +163,59 @@
             }
         }
 
-        // Fetch JWT token from server
-        async function fetchJWT() {
-            try {
-                const response = await fetch('/api/jwt');
-                if (response.ok) {
-                    const data = await response.json();
-                    return data.jwt;
-                } else {
-                    console.error('Failed to fetch JWT:', response.statusText);
-                    return null;
-                }
-            } catch (error) {
-                console.error('Error fetching JWT:', error);
-                return null;
-            }
-        }
-
-        // Initialize Watson Orchestrate - simplified version
+        // Initialize Watson Orchestrate with dynamic configuration
         async function initializeWatsonOrchestrate() {
-            const token = await fetchJWT();
+            console.log('🔧 Initializing Watson Orchestrate...');
             
-            if (!token) {
-                console.log('No JWT token available - cannot initialize Watson Orchestrate');
-                return;
-            }
+            try {
+                // Fetch Watson configuration from server
+                const configResponse = await fetch('/api/watson-config');
+                const jwtResponse = await fetch('/api/jwt');
+                
+                if (!configResponse.ok || !jwtResponse.ok) {
+                    throw new Error('Failed to fetch configuration or JWT');
+                }
+                
+                const config = await configResponse.json();
+                const jwtData = await jwtResponse.json();
+                
+                console.log('✅ Configuration loaded:', config);
+                console.log('✅ JWT token obtained');
+                
+                // Configure Watson Orchestrate with default layout
+                window.wxOConfiguration = {
+                    clientVersion: 'latest',
+                    orchestrationID: config.orchestrationID,
+                    hostURL: config.hostURL,
+                    rootElementId: "root",
+                    showLauncher: true,
+                    token: jwtData.jwt,
+                    chatOptions: {
+                        agentId: config.agentId,
+                        agentEnvironmentId: config.agentEnvironmentId,
+                        onLoad: function(instance) {
+                            console.log('🎯 Watson Orchestrate loaded successfully:', instance);
+                        }
+                    }
+                };
 
-            console.log('Initializing Watson Orchestrate with JWT token');
-            
-            // Use the simplified head script function with just the token
-            window.initWatsonWithToken(token);
+                // Load Watson Orchestrate script
+                const script = document.createElement('script');
+                script.src = `${config.hostURL}/wxochat/wxoLoader.js?embed=true`;
+                script.addEventListener('load', function () {
+                    console.log('📦 Watson script loaded, initializing...');
+                    wxoLoader.init();
+                });
+                script.addEventListener('error', function () {
+                    console.error('❌ Failed to load Watson Orchestrate script');
+                });
+                document.head.appendChild(script);
+                
+            } catch (error) {
+                console.error('❌ Watson Orchestrate initialization failed:', error);
+                document.getElementById('root').innerHTML = 
+                    '<p style="text-align: center; color: #dc3545; margin: 20px;">Failed to load Watson Orchestrate. Please try refreshing the page.</p>';
+            }
         }
 
         // Check auth status on page load

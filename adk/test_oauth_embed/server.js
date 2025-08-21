@@ -497,18 +497,12 @@ function generateSuccessPage(userInfo, watsonJWT, tokenData) {
                 orchestrationID: "${WATSON_CONFIG.orchestration_id}",
                 hostURL: "${WATSON_CONFIG.host_url}",
                 rootElementId: "root",
-                layout: 'embedded',
-                showLauncher: false,
-                isFullPageChat: false,
-                height: '500px',
-                width: '100%',
+                showLauncher: true,
                 token: token,
                 chatOptions: {
                     onLoad: onLoad,
                     agentId: "${WATSON_CONFIG.agent_id}",
                     agentEnvironmentId: "${WATSON_CONFIG.agent_environment_id}",
-                    isFullscreen: false,
-                    height: '500px'
                 }
             };
 
