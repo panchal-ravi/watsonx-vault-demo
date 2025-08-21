@@ -396,8 +396,6 @@ function generateSuccessPage(userInfo, watsonJWT, tokenData) {
             max-height: 600px;
             width: 100%;
             max-width: 800px;
-            border: 2px dashed #ddd; 
-            border-radius: 8px; 
             padding: 20px; 
             margin: 30px auto 0 auto; 
             text-align: center; 

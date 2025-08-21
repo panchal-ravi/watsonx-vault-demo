@@ -126,7 +126,7 @@
         </div>
         
         <!-- Watson Orchestrate Root Element -->
-        <div id="root">
+        <div id="root" style="margin-top: 30px; min-height: 400px; max-height: 600px; padding: 20px; display: none;">
             <p style="text-align: center; color: #666; margin: 0;">Watson Orchestrate chat will appear here after authentication</p>
         </div>
     </div>
@@ -167,6 +167,10 @@
         async function initializeWatsonOrchestrate() {
             console.log('🔧 Initializing Watson Orchestrate...');
             
+            // Show the Watson container
+            const rootElement = document.getElementById('root');
+            rootElement.style.display = 'block';
+            
             try {
                 // Fetch Watson configuration from server
                 const configResponse = await fetch('/api/watson-config');
@@ -182,13 +186,12 @@
                 console.log('✅ Configuration loaded:', config);
                 console.log('✅ JWT token obtained');
                 
-                // Configure Watson Orchestrate with default layout
+                // Configure Watson Orchestrate with embedded layout
                 window.wxOConfiguration = {
                     clientVersion: 'latest',
                     orchestrationID: config.orchestrationID,
                     hostURL: config.hostURL,
                     rootElementId: "root",
-                    showLauncher: true,
                     token: jwtData.jwt,
                     chatOptions: {
                         agentId: config.agentId,
@@ -213,7 +216,7 @@
                 
             } catch (error) {
                 console.error('❌ Watson Orchestrate initialization failed:', error);
-                document.getElementById('root').innerHTML = 
+                rootElement.innerHTML = 
                     '<p style="text-align: center; color: #dc3545; margin: 20px;">Failed to load Watson Orchestrate. Please try refreshing the page.</p>';
             }
         }
