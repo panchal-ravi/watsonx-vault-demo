@@ -74,6 +74,40 @@
             background-color: #fff3cd;
             border: 1px solid #ffeaa7;
         }
+        .obo-test-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .obo-test-section h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .obo-test-section p {
+            margin-bottom: 15px;
+            color: #6c757d;
+        }
+        #obo-results {
+            margin-top: 15px;
+        }
+        #obo-results h5 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        #obo-output {
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -114,7 +148,6 @@
             <h3>🔧 Technical Configuration:</h3>
             <ul>
                 <li><strong>Tenant ID:</strong> Azure AD tenant for authentication</li>
-                <li><strong>Scope:</strong> api://hashicorp-vault-app-99f8d671/vault.secrets.read</li>
                 <li><strong>Watson Orchestration:</strong> AI-powered chat assistant</li>
                 <li><strong>Security:</strong> RSA-encrypted user payload, CSRF protection</li>
             </ul>
@@ -123,6 +156,28 @@
         <div id="authenticated-section" style="display: none;">
             <h3>✅ Authentication Successful</h3>
             <p>You are now authenticated. The Watson Orchestrate chat will be available after login.</p>
+            
+            <!-- On-Behalf-Of Test Section -->
+            <div class="obo-test-section" style="margin-top: 20px; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                <h4>🔄 Azure On-Behalf-Of Flow Test</h4>
+                <p>Test the on-behalf-of token exchange using your current access token as an assertion.</p>
+                
+                <div class="warning" id="consent-warning" style="margin-bottom: 15px;">
+                    <strong>⚠️ ProductsAgent Consent Required</strong>
+                    <p>Before testing the on-behalf-of flow, you need to grant consent to the ProductsAgent application for the Products.Read scope.</p>
+                    <button id="consent-btn" class="login-button" style="background-color: #ff6b6b; margin: 5px;">
+                        🔐 Grant ProductsAgent Consent
+                    </button>
+                </div>
+                
+                <button id="test-obo-btn" class="login-button" style="background-color: #28a745; margin: 5px;">
+                    🧪 Test On-Behalf-Of Flow
+                </button>
+                <div id="obo-results" style="margin-top: 15px; display: none;">
+                    <h5>Test Results:</h5>
+                    <pre id="obo-output" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 10px; font-size: 12px; max-height: 400px; overflow-y: auto;"></pre>
+                </div>
+            </div>
         </div>
         
         <!-- Watson Orchestrate Root Element -->
@@ -132,6 +187,86 @@
     </div>
 
     <script>
+        // Test On-Behalf-Of flow
+        async function testOnBehalfOfFlow() {
+            const button = document.getElementById('test-obo-btn');
+            const resultsDiv = document.getElementById('obo-results');
+            const outputPre = document.getElementById('obo-output');
+            
+            // Update button state
+            button.textContent = '🔄 Testing...';
+            button.disabled = true;
+            button.style.backgroundColor = '#6c757d';
+            
+            // Show results section
+            resultsDiv.style.display = 'block';
+            outputPre.textContent = 'Initiating on-behalf-of token exchange...\n';
+            
+            try {
+                const response = await fetch('/api/test-obo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    outputPre.textContent = `✅ SUCCESS: On-Behalf-Of Flow Test Results\n\n` +
+                        `🎫 Token Exchange:\n` +
+                        `   - Status: ✅ Successful\n` +
+                        `   - Token Type: ${data.tokenInfo.token_type}\n` +
+                        `   - Expires In: ${data.tokenInfo.expires_in} seconds\n` +
+                        `   - Scope: ${data.tokenInfo.scope}\n` +
+                        `   - Access Token Preview: ${data.tokenInfo.access_token_preview}\n` +
+                        `   - Refresh Token Available: ${data.tokenInfo.refresh_token_available}\n\n` +
+                        `🔍 Microsoft Graph API Test:\n` +
+                        `   - Status: ${data.graphTest.success ? '✅ Successful' : '❌ Failed'}\n`;
+                    
+                    if (data.graphTest.success) {
+                        outputPre.textContent += `   - User ID: ${data.graphTest.data.id}\n` +
+                            `   - Display Name: ${data.graphTest.data.displayName}\n` +
+                            `   - Email: ${data.graphTest.data.mail || 'N/A'}\n` +
+                            `   - UPN: ${data.graphTest.data.userPrincipalName}\n`;
+                    } else {
+                        outputPre.textContent += `   - Error: ${JSON.stringify(data.graphTest.error, null, 2)}\n`;
+                    }
+                    
+                    outputPre.textContent += `\n⏰ Timestamp: ${data.timestamp}\n`;
+                    
+                    // Success button state
+                    button.style.backgroundColor = '#28a745';
+                    button.textContent = '✅ Test Completed';
+                } else {
+                    outputPre.textContent = `❌ FAILED: On-Behalf-Of Flow Test\n\n` +
+                        `Error: ${data.error}\n\n` +
+                        `Details:\n${JSON.stringify(data.details, null, 2)}\n\n` +
+                        `⏰ Timestamp: ${data.details?.timestamp || new Date().toISOString()}`;
+                    
+                    // Error button state
+                    button.style.backgroundColor = '#dc3545';
+                    button.textContent = '❌ Test Failed';
+                }
+                
+            } catch (error) {
+                outputPre.textContent = `❌ REQUEST FAILED: On-Behalf-Of Flow Test\n\n` +
+                    `Network Error: ${error.message}\n\n` +
+                    `⏰ Timestamp: ${new Date().toISOString()}`;
+                
+                // Error button state
+                button.style.backgroundColor = '#dc3545';
+                button.textContent = '❌ Request Failed';
+            } finally {
+                // Re-enable button after delay
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = '🧪 Test On-Behalf-Of Flow';
+                    button.style.backgroundColor = '#28a745';
+                }, 3000);
+            }
+        }
+
         // Check authentication status and initialize Watson Orchestrate
         async function checkAuthStatus() {
             try {
@@ -233,6 +368,12 @@
                     statusElement.textContent = 'Redirecting to Azure AD...';
                     statusElement.style.color = '#007bff';
                 });
+            }
+            
+            // Add OBO test button event listener
+            const oboButton = document.getElementById('test-obo-btn');
+            if (oboButton) {
+                oboButton.addEventListener('click', testOnBehalfOfFlow);
             }
         });
     </script>

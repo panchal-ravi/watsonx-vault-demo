@@ -77,7 +77,12 @@ function validateConfig() {
         'WATSON_AGENT_ENVIRONMENT_ID'
     ];
     
+    const optional = [
+        'PRODUCT_AGENT_CLIENT_ID', 'PRODUCT_AGENT_CLIENT_SECRET'
+    ];
+    
     const missing = required.filter(key => !process.env[key]);
+    const missingOptional = optional.filter(key => !process.env[key]);
     
     if (missing.length > 0) {
         console.error('❌ Missing required environment variables:');
@@ -85,6 +90,12 @@ function validateConfig() {
         console.error('💡 Please check your .env file.');
         return false;
     }
+    
+    if (missingOptional.length > 0) {
+        console.warn('⚠️  Missing optional environment variables (On-Behalf-Of flow will be disabled):');
+        missingOptional.forEach(key => console.warn(`   - ${key}`));
+    }
+    
     return true;
 }
 
@@ -359,6 +370,157 @@ app.get('/api/validate-jwt', (req, res) => {
             error: 'JWT parsing failed', 
             message: error.message,
             parts_count: parts.length 
+        });
+    }
+});
+
+// API endpoint to test Azure On-Behalf-Of flow
+app.post('/api/test-obo', async (req, res) => {
+    const sessionId = req.cookies.session_id;
+    const session = sessionId ? sessions.get(sessionId) : null;
+    
+    if (!session || !session.authenticated || !session.access_token) {
+        return res.status(401).json({ error: 'Not authenticated or no access token available' });
+    }
+
+    // Check if Product Agent credentials are configured
+    if (!process.env.PRODUCT_AGENT_CLIENT_ID || !process.env.PRODUCT_AGENT_CLIENT_SECRET) {
+        return res.status(400).json({ 
+            error: 'Product Agent credentials not configured',
+            details: {
+                message: 'PRODUCT_AGENT_CLIENT_ID and PRODUCT_AGENT_CLIENT_SECRET environment variables are required for On-Behalf-Of flow testing',
+                timestamp: new Date().toISOString()
+            }
+        });
+    }
+
+    try {
+        // On-Behalf-Of token exchange parameters
+        const oboParams = new URLSearchParams({
+            grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            client_id: process.env.PRODUCT_AGENT_CLIENT_ID,
+            client_secret: process.env.PRODUCT_AGENT_CLIENT_SECRET,
+            assertion: session.access_token,
+            scope: 'api://6a40d9e9-49b5-415b-91a8-67488d2eeff1/Products.Read',
+            requested_token_use: 'on_behalf_of'
+        });
+
+        console.log(`🔄 Initiating On-Behalf-Of token exchange...`);
+        console.log(`   - Original token (first 50 chars): ${session.access_token.substring(0, 50)}...`);
+        console.log(`   - Product Agent Client ID: ${process.env.PRODUCT_AGENT_CLIENT_ID}`);
+        console.log(`   - Target scope: https://graph.microsoft.com/user.read offline_access`);
+        
+        // Log the complete request payload
+        console.log(`📝 On-Behalf-Of Request Payload:`);
+        console.log(`   POST URL: ${CONFIG.token_endpoint}`);
+        console.log(`   Content-Type: application/x-www-form-urlencoded`);
+        console.log(`   Request Body Parameters:`);
+        console.log(`     grant_type: ${oboParams.get('grant_type')}`);
+        console.log(`     client_id: ${oboParams.get('client_id')}`);
+        console.log(`     client_secret: ${oboParams.get('client_secret') ? '[REDACTED - Length: ' + oboParams.get('client_secret').length + ']' : 'NOT SET'}`);
+        console.log(`     assertion (first 100 chars): ${oboParams.get('assertion').substring(0, 100)}...`);
+        console.log(`     scope: ${oboParams.get('scope')}`);
+        console.log(`     requested_token_use: ${oboParams.get('requested_token_use')}`);
+        console.log(`   Raw payload size: ${oboParams.toString().length} characters`);
+
+        const oboResponse = await axios.post(CONFIG.token_endpoint, oboParams, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            timeout: 10000 // 10 second timeout
+        });
+
+        const oboTokenData = oboResponse.data;
+        
+        console.log(`✅ On-Behalf-Of token exchange successful`);
+        console.log(`📊 Response Details:`);
+        console.log(`   - HTTP Status: ${oboResponse.status} ${oboResponse.statusText}`);
+        console.log(`   - Content-Type: ${oboResponse.headers['content-type']}`);
+        console.log(`   - Response size: ${JSON.stringify(oboTokenData).length} characters`);
+        console.log(`📋 Token Details:`);
+        console.log(`   - New token type: ${oboTokenData.token_type}`);
+        console.log(`   - Expires in: ${oboTokenData.expires_in} seconds`);
+        console.log(`   - Scope: ${oboTokenData.scope}`);
+        console.log(`   - Access token (first 50 chars): ${oboTokenData.access_token?.substring(0, 50)}...`);
+        if (oboTokenData.refresh_token) {
+            console.log(`   - Refresh token available: YES (${oboTokenData.refresh_token.substring(0, 30)}...)`);
+        } else {
+            console.log(`   - Refresh token available: NO`);
+        }
+
+        // Test the OBO token by calling Microsoft Graph API
+        let graphResult = null;
+        try {
+            const graphResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
+                headers: {
+                    'Authorization': `Bearer ${oboTokenData.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 10000
+            });
+            
+            graphResult = {
+                success: true,
+                data: {
+                    id: graphResponse.data.id,
+                    displayName: graphResponse.data.displayName,
+                    mail: graphResponse.data.mail,
+                    userPrincipalName: graphResponse.data.userPrincipalName
+                }
+            };
+            console.log(`✅ Microsoft Graph API test successful: ${graphResponse.data.displayName}`);
+        } catch (graphError) {
+            console.warn(`⚠️  Microsoft Graph API test failed: ${graphError.message}`);
+            graphResult = {
+                success: false,
+                error: graphError.response?.data?.error || graphError.message
+            };
+        }
+
+        res.json({
+            success: true,
+            message: 'On-Behalf-Of token exchange successful',
+            tokenInfo: {
+                token_type: oboTokenData.token_type,
+                expires_in: oboTokenData.expires_in,
+                scope: oboTokenData.scope,
+                access_token_preview: oboTokenData.access_token,
+                refresh_token_available: !!oboTokenData.refresh_token
+            },
+            graphTest: graphResult,
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error(`❌ On-Behalf-Of token exchange failed:`, error.message);
+        console.error(`📝 Failed Request Details:`);
+        console.error(`   - POST URL: ${CONFIG.token_endpoint}`);
+        console.error(`   - Client ID used: ${process.env.PRODUCT_AGENT_CLIENT_ID}`);
+        console.error(`   - Grant type: urn:ietf:params:oauth:grant-type:jwt-bearer`);
+        console.error(`   - Requested token use: on_behalf_of`);
+        console.error(`   - Assertion token (first 100 chars): ${session?.access_token?.substring(0, 100)}...`);
+        
+        let errorDetails = {
+            message: error.message,
+            timestamp: new Date().toISOString()
+        };
+
+        if (error.response?.data) {
+            errorDetails.azureError = error.response.data;
+            console.error(`   - Azure error response:`, JSON.stringify(error.response.data, null, 2));
+        }
+
+        if (error.response?.status) {
+            errorDetails.statusCode = error.response.status;
+            console.error(`   - HTTP Status: ${error.response.status} ${error.response.statusText}`);
+        }
+
+        if (error.response?.headers) {
+            console.error(`   - Response headers:`, error.response.headers);
+        }
+
+        res.status(error.response?.status || 500).json({
+            success: false,
+            error: 'On-Behalf-Of token exchange failed',
+            details: errorDetails
         });
     }
 });
