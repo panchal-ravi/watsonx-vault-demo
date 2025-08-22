@@ -446,35 +446,6 @@ app.post('/api/test-obo', async (req, res) => {
             console.log(`   - Refresh token available: NO`);
         }
 
-        // Test the OBO token by calling Microsoft Graph API
-        let graphResult = null;
-        try {
-            const graphResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
-                headers: {
-                    'Authorization': `Bearer ${oboTokenData.access_token}`,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 10000
-            });
-            
-            graphResult = {
-                success: true,
-                data: {
-                    id: graphResponse.data.id,
-                    displayName: graphResponse.data.displayName,
-                    mail: graphResponse.data.mail,
-                    userPrincipalName: graphResponse.data.userPrincipalName
-                }
-            };
-            console.log(`✅ Microsoft Graph API test successful: ${graphResponse.data.displayName}`);
-        } catch (graphError) {
-            console.warn(`⚠️  Microsoft Graph API test failed: ${graphError.message}`);
-            graphResult = {
-                success: false,
-                error: graphError.response?.data?.error || graphError.message
-            };
-        }
-
         res.json({
             success: true,
             message: 'On-Behalf-Of token exchange successful',
@@ -485,7 +456,6 @@ app.post('/api/test-obo', async (req, res) => {
                 access_token_preview: oboTokenData.access_token,
                 refresh_token_available: !!oboTokenData.refresh_token
             },
-            graphTest: graphResult,
             timestamp: new Date().toISOString()
         });
 

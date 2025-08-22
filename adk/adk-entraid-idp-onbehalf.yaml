@@ -1,12 +1,12 @@
 spec_version: v1
 kind: connection
-app_id: watsonxdemo
+app_id: greetings
 environments:
   live:
     url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
-    client-id: ced4c4a3-fdbf-4796-8999-2d7e8c7afae3
-    client-secret: 
-    scope: api://hashicorp-vault-app-99f8d671/vault.secrets.read
+    client-id: 5c3790ba-90d7-48e0-ac13-b11cb6631913
+    client-secret: 7TZ8Q~Ob3xYHwUXMFgZEKh...
+    scope: api://6a40d9e9-49b5-415b-91a8-67488d2eeff1/Products.Read
     grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
 
 

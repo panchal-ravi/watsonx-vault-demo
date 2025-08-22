@@ -162,14 +162,6 @@
                 <h4>🔄 Azure On-Behalf-Of Flow Test</h4>
                 <p>Test the on-behalf-of token exchange using your current access token as an assertion.</p>
                 
-                <div class="warning" id="consent-warning" style="margin-bottom: 15px;">
-                    <strong>⚠️ ProductsAgent Consent Required</strong>
-                    <p>Before testing the on-behalf-of flow, you need to grant consent to the ProductsAgent application for the Products.Read scope.</p>
-                    <button id="consent-btn" class="login-button" style="background-color: #ff6b6b; margin: 5px;">
-                        🔐 Grant ProductsAgent Consent
-                    </button>
-                </div>
-                
                 <button id="test-obo-btn" class="login-button" style="background-color: #28a745; margin: 5px;">
                     🧪 Test On-Behalf-Of Flow
                 </button>
@@ -221,19 +213,7 @@
                         `   - Scope: ${data.tokenInfo.scope}\n` +
                         `   - Access Token Preview: ${data.tokenInfo.access_token_preview}\n` +
                         `   - Refresh Token Available: ${data.tokenInfo.refresh_token_available}\n\n` +
-                        `🔍 Microsoft Graph API Test:\n` +
-                        `   - Status: ${data.graphTest.success ? '✅ Successful' : '❌ Failed'}\n`;
-                    
-                    if (data.graphTest.success) {
-                        outputPre.textContent += `   - User ID: ${data.graphTest.data.id}\n` +
-                            `   - Display Name: ${data.graphTest.data.displayName}\n` +
-                            `   - Email: ${data.graphTest.data.mail || 'N/A'}\n` +
-                            `   - UPN: ${data.graphTest.data.userPrincipalName}\n`;
-                    } else {
-                        outputPre.textContent += `   - Error: ${JSON.stringify(data.graphTest.error, null, 2)}\n`;
-                    }
-                    
-                    outputPre.textContent += `\n⏰ Timestamp: ${data.timestamp}\n`;
+                        `⏰ Timestamp: ${data.timestamp}\n`;
                     
                     // Success button state
                     button.style.backgroundColor = '#28a745';
