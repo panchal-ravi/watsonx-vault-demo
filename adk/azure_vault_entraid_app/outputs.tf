@@ -55,3 +55,34 @@ output "demo2_user_id" {
   value       = azuread_user.demo2.object_id
   description = "Object ID of demo2 user."
 }
+
+
+output "product_web_client_id" {
+  value       = module.azure-ad-app.products_web_client_id
+  description = "Client ID of the web client."
+}
+
+output "product_web_client_secret" {
+  value       = nonsensitive(module.azure-ad-app.products_web_client_secret)  
+  description = "Client secret of the web client."
+}
+
+output "product_web_client_scopes" {
+  value       = module.azure-ad-app.products_web_client_scopes  
+  description = "OAuth2 permission scopes of the web client."
+}
+
+output "product_agent_client_id" {
+  value       = module.azure-ad-app.products_agent_client_id
+  description = "Client ID of the agent client."
+}
+
+output "product_agent_client_secret" {
+  value       = nonsensitive(module.azure-ad-app.products_agent_client_secret)  
+  description = "Client secret of the agent client."
+}
+
+output "product_agent_client_scopes" {
+  value       = module.azure-ad-app.products_agent_scopes
+  description = "OAuth2 permission scopes of the agent client."
+}

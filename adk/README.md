@@ -58,3 +58,7 @@ custom_user_id: userID,
 custom_message: 'hi hello',
 sso_token: '<INSERT_SSO_TOKEN_HERE>'
 }
+
+# onbehalf to Web Agent app 
+# product_agent_client_id = "5c3790ba-90d7-48e0-ac13-b11cb6631913"
+# scopes 

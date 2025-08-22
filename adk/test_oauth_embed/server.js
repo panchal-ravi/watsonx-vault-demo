@@ -54,7 +54,7 @@ const WATSON_CONFIG = {
 // JWT Configuration
 const TIME_45_DAYS = 1000 * 60 * 60 * 24 * 45;
 
-// Load keys (you'll need to create these)
+// Load keys 
 let PRIVATE_KEY, IBM_PUBLIC_KEY;
 try {
     PRIVATE_KEY = fs.readFileSync(path.join(__dirname, 'keys/private_key.pem'));

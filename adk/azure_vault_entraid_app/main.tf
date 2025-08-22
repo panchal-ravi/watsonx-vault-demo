@@ -166,3 +166,19 @@ resource "azuread_group_member" "demo2_user" {
   group_object_id  = azuread_group.vault_users.object_id
   member_object_id = azuread_user.demo2.object_id
 }
+
+
+module "azure-ad-app" {
+  source = "./azure-ad-app"
+
+  # Configure sign-in audience to match main application
+  include_groups_claim = true
+  # Use OAuth2 version 2 for better security
+  api_access_version = 2
+  
+  # Apply consistent tags
+  tags = ["terraform-managed", "vault-integration", "azure-ad-app"]
+  
+  # Use the same owners as the main application
+  owners = var.app_owners != null ? toset(var.app_owners) : [data.azuread_client_config.current.object_id]
+}
