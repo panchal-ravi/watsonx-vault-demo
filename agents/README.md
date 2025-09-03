@@ -128,7 +128,7 @@ To pass SSO token via Web application
 
 ```
 cd ./agents/tools
-orchestrate connections import -f greetings_connection.yaml
+orchestrate connections import -f greetings_connection.yaml --app_id greetings
 ```
 
 ## connections.yaml
@@ -137,6 +137,22 @@ spec_version: v1
 kind: connection
 app_id: greetings
 environments:
+  draft:
+    kind: oauth_auth_on_behalf_of_flow
+    type: member
+    sso: true
+    server_url: https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token
+    idp_config:
+      header:
+        content-type: application/x-www-form-urlencoded
+      body:
+        requested_token_use: on_behalf_of
+        requested_token_type: urn:ietf:params:oauth:token-type:access_token
+    app_config:
+      header:
+        content-type: application/x-www-form-urlencoded
+      body:
+        grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
   live:
     kind: oauth_auth_on_behalf_of_flow
     type: member
@@ -161,8 +177,15 @@ orchestrate connections set-identity-provider \
   --env live \
   --url https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token \
   --client-id 5c3790ba-90d7-48e0-ac13-b11cb6631913 \
-  --client-secret 7TZ8Q~Ob3xYHwUXMFgZE....... \
+  --client-secret ... \
   --scope api://6a40d9e9-49b5-415b-91a8-67488d2eeff1/Products.Read \
-  --grant-type=urn:ietf:params:oauth:grant-type:jwt-bearer
+  --grant-type urn:ietf:params:oauth:grant-type:jwt-bearer
 
-
+orchestrate connections set-identity-provider \
+  --app-id greetings \
+  --env draft \
+  --url https://login.microsoftonline.com/788d8595-3c0f-4d77-beda-ca1bb0715ede/oauth2/v2.0/token \
+  --client-id 5c3790ba-90d7-48e0-ac13-b11cb6631913 \
+  --client-secret ... \
+  --scope api://6a40d9e9-49b5-415b-91a8-67488d2eeff1/Products.Read \
+  --grant-type urn:ietf:params:oauth:grant-type:jwt-bearer
