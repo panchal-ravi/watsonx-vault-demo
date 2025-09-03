@@ -127,9 +127,9 @@ function createWatsonJWT(userInfo, sessionId, accessToken) {
     
     const jwtContent = {
         sub: anonymousUserId,
-        iss: 'azure-oauth-server', // Add issuer
-        aud: 'watson-orchestrate', // Add audience
-        iat: Math.floor(Date.now() / 1000), // Add issued at
+        //iss: 'azure-oauth-server', // Add issuer
+        //aud: 'watson-orchestrate', // Add audience
+        //iat: Math.floor(Date.now() / 1000), // Add issued at
         woUserId: userInfo.preferred_username || userInfo.upn,
         woTenantId: userInfo.tid,
         user_payload: {
@@ -423,6 +423,19 @@ app.post('/api/test-obo', async (req, res) => {
         console.log(`     requested_token_use: ${oboParams.get('requested_token_use')}`);
         console.log(`   Raw payload size: ${oboParams.toString().length} characters`);
 
+        // Capture raw payload for response
+        const rawPayload = oboParams.toString();
+        const requestDetails = {
+            method: 'POST',
+            url: CONFIG.token_endpoint,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: rawPayload,
+            bodySize: rawPayload.length
+        };
+
+        console.log(`🌐 Making HTTP Request:`);
+        console.log(`   - Raw payload: ${rawPayload}`);
+
         const oboResponse = await axios.post(CONFIG.token_endpoint, oboParams, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             timeout: 10000 // 10 second timeout
@@ -449,12 +462,39 @@ app.post('/api/test-obo', async (req, res) => {
         res.json({
             success: true,
             message: 'On-Behalf-Of token exchange successful',
+            requestDetails: {
+                method: requestDetails.method,
+                url: requestDetails.url,
+                headers: requestDetails.headers,
+                rawPayload: requestDetails.body,
+                payloadSize: requestDetails.bodySize,
+                parsedPayload: {
+                    grant_type: oboParams.get('grant_type'),
+                    client_id: oboParams.get('client_id'),
+                    client_secret: oboParams.get('client_secret') ? '[REDACTED]' : 'NOT SET',
+                    assertion_preview: oboParams.get('assertion')?.substring(0, 100) + '...',
+                    scope: oboParams.get('scope'),
+                    requested_token_use: oboParams.get('requested_token_use')
+                }
+            },
+            responseDetails: {
+                status: oboResponse.status,
+                statusText: oboResponse.statusText,
+                headers: {
+                    'content-type': oboResponse.headers['content-type'],
+                    'cache-control': oboResponse.headers['cache-control'],
+                    'expires': oboResponse.headers['expires']
+                },
+                rawResponse: oboTokenData
+            },
             tokenInfo: {
                 token_type: oboTokenData.token_type,
                 expires_in: oboTokenData.expires_in,
                 scope: oboTokenData.scope,
-                access_token_preview: oboTokenData.access_token,
-                refresh_token_available: !!oboTokenData.refresh_token
+                access_token_preview: oboTokenData.access_token?.substring(0, 100) + '...',
+                access_token_full: oboTokenData.access_token,
+                refresh_token_available: !!oboTokenData.refresh_token,
+                refresh_token_preview: oboTokenData.refresh_token ? oboTokenData.refresh_token.substring(0, 50) + '...' : null
             },
             timestamp: new Date().toISOString()
         });
@@ -470,7 +510,14 @@ app.post('/api/test-obo', async (req, res) => {
         
         let errorDetails = {
             message: error.message,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            requestDetails: requestDetails || {
+                method: 'POST',
+                url: CONFIG.token_endpoint,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                rawPayload: 'Failed to capture payload',
+                payloadSize: 0
+            }
         };
 
         if (error.response?.data) {
@@ -523,6 +570,12 @@ function generateSuccessPage(userInfo, watsonJWT, tokenData) {
         .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin-bottom: 20px; }
         pre { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 15px; overflow-x: auto; font-size: 12px; }
         .back-button { display: inline-block; background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+        .test-button { display: inline-block; background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border: none; border-radius: 4px; margin: 10px; cursor: pointer; }
+        .test-button:hover { background-color: #218838; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .json-display { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 15px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 11px; }
+        .loading { color: #666; font-style: italic; }
+        .error-display { background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; color: #721c24; }
         #root { 
             min-height: 400px; 
             max-height: 600px;
@@ -561,6 +614,13 @@ function generateSuccessPage(userInfo, watsonJWT, tokenData) {
             id_token_present: !!tokenData.id_token,
             watson_jwt_present: !!watsonJWT
         }, null, 2)}</pre>
+        
+        <div class="test-section">
+            <h3>🧪 Test On-Behalf-Of Token Exchange</h3>
+            <p>Test the Azure On-Behalf-Of flow to see the complete request/response cycle:</p>
+            <button id="testOboBtn" class="test-button" onclick="testOnBehalfOf()">Test OBO Flow</button>
+            <div id="oboResults" style="margin-top: 15px;"></div>
+        </div>
         
         <a href="/" class="back-button">← Back to Home</a>
         
@@ -602,6 +662,64 @@ function generateSuccessPage(userInfo, watsonJWT, tokenData) {
             instance.on('send', sendHandler);
             instance.on('pre:receive', preReceiveHandler);
             instance.on('receive', receiveHandler);
+        }
+
+        // Test On-Behalf-Of token exchange
+        async function testOnBehalfOf() {
+            const testBtn = document.getElementById('testOboBtn');
+            const resultsDiv = document.getElementById('oboResults');
+            
+            testBtn.disabled = true;
+            testBtn.textContent = 'Testing...';
+            resultsDiv.innerHTML = '<div class="loading">🔄 Testing On-Behalf-Of token exchange...</div>';
+            
+            try {
+                const response = await fetch('/api/test-obo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = \`
+                        <h4>✅ Success - On-Behalf-Of Token Exchange</h4>
+                        <div style="margin-bottom: 15px;">
+                            <strong>📤 Request Details:</strong>
+                            <div class="json-display">\${JSON.stringify(data.requestDetails, null, 2)}</div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>📥 Response Details:</strong>
+                            <div class="json-display">\${JSON.stringify(data.responseDetails, null, 2)}</div>
+                        </div>
+                        <div>
+                            <strong>🎫 Token Information:</strong>
+                            <div class="json-display">\${JSON.stringify(data.tokenInfo, null, 2)}</div>
+                        </div>
+                    \`;
+                } else {
+                    resultsDiv.innerHTML = \`
+                        <h4>❌ Error - On-Behalf-Of Token Exchange Failed</h4>
+                        <div class="error-display">
+                            <strong>Error:</strong> \${data.error || 'Unknown error'}
+                            <br><strong>Details:</strong>
+                            <div class="json-display">\${JSON.stringify(data.details || data, null, 2)}</div>
+                        </div>
+                    \`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = \`
+                    <h4>❌ Network Error</h4>
+                    <div class="error-display">
+                        Failed to connect to server: \${error.message}
+                    </div>
+                \`;
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = 'Test OBO Flow';
+            }
         }
 
         // Fetch current JWT from server

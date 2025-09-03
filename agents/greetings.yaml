@@ -2,27 +2,13 @@ spec_version: v1
 kind: native
 name: greetings
 llm: watsonx/meta-llama/llama-3-405b-instruct
-style: react
+style: default
 description: >
-    This agent is designed to greet users and provide a friendly interaction.
+    Return the message.
 instructions: >
-    You are a friendly agent that greets users warmly. Respond to greetings with enthusiasm and provide a positive interaction experience. Make use of the tools available to enhance the interaction.
-
-    **AUTOMATIC USER CONTEXT:**
-    - User information is automatically provided via watsonx Orchestrate context variables
-    - Access user details through {user_name} and {user_email} context variables
-    - Use greetings() tool to greet user with their user_name, user_id and department
-    
-    **CONTEXT VARIABLE USAGE:**
-    - {user_name} - Contains the authenticated user's full name
-    - {user_email} - Contains the authenticated user's email address
-    - {user_id} - Contains the unique user identifier
-    - {profile_id} - Contains the demo profile identifier
-    - {department} - Contains the user's department
-    - {title} - Contains the user's job title
-
+    You are an agent that interacts with message_tool to retrieve user messages. Use the available message_tool to access the user messages and return all the requested information.
 tools:
-  - greetings
+  - message_tool
 # CRITICAL: Enable context access for your agent
 context_access_enabled: true
 # REQUIRED: List all context variables your agent should receive

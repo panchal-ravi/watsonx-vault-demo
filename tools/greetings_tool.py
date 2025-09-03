@@ -10,7 +10,7 @@ from ibm_watsonx_orchestrate.agent_builder.tools import tool, ToolPermission
 @tool(
     name="greetings",
     description="Greet user with their name",
-    permission=ToolPermission.READ_ONLY,
+    permission=ToolPermission.ADMIN,
 )
 # def greetings_tool(name: str, context: Optional[Dict[str, Any]] = None) -> str:
 def greetings_tool(name: str, department: str, user_id: str) -> str:
